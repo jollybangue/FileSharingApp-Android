@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "998347800181",
+    "firebase_url": "https://rexmicrosystems-default-rtdb.firebaseio.com",
+    "project_id": "rexmicrosystems",
+    "storage_bucket": "rexmicrosystems.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:998347800181:android:acf6cf432cfe9101a9023c",
+        "android_client_info": {
+          "package_name": "com.rexmicrosystems.filesharingapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "998347800181-r15elgcd7koq8ivgfe1eg6qd50a7ld9j.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC0iz0-jwUeylDGNB4I2RjxR2_FgYWeJT8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "998347800181-r15elgcd7koq8ivgfe1eg6qd50a7ld9j.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "998347800181-e2i1g23cniocc9fargb8t0c7o8mcjj3b.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.jolly.FileSharingApp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
