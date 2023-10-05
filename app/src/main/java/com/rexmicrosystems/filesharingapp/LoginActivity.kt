@@ -6,6 +6,13 @@
 //
 // Description: A native Android app that enables users to upload, download, delete, and share files using Firebase features (Firebase Authentication and Firebase Cloud Storage).
 
+//TODO: Improve Login and Register Firebase Authentication implementation.
+//  For example, when a user account is deleted in the Firebase Web Console,
+//  the user stays connected on the local device and the Home activity is automatically loaded when we launch the app (the problem seems to be fixed when we uninstall the app...).
+// Also, try to use fragments to navigate indefinitely between Login and Register screens.
+
+
+
 package com.rexmicrosystems.filesharingapp
 
 import android.annotation.SuppressLint // Automatically added after adding the expression "hideKeyboard(it)"
@@ -23,6 +30,12 @@ import com.google.firebase.ktx.Firebase
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var loginAuth: FirebaseAuth
+
+    private lateinit var editTextLoginEmail: EditText
+    private lateinit var editTextLoginPassword: EditText
+    private lateinit var buttonSignIn: Button
+    private lateinit var buttonGoToRegister: Button
+
     @SuppressLint("RestrictedApi") // Automatically added after adding the expression "hideKeyboard(it)"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,10 +45,10 @@ class LoginActivity : AppCompatActivity() {
 
         loginAuth = Firebase.auth // Initialize the FirebaseAuth instance.
 
-        val editTextLoginEmail = findViewById<EditText>(R.id.editTextLoginEmail)
-        val editTextLoginPassword = findViewById<EditText>(R.id.editTextLoginPassword)
-        val buttonSignIn = findViewById<Button>(R.id.buttonSignIn)
-        val buttonGoToRegister = findViewById<Button>(R.id.buttonGoToRegister)
+        editTextLoginEmail = findViewById(R.id.editTextLoginEmail)
+        editTextLoginPassword = findViewById(R.id.editTextLoginPassword)
+        buttonSignIn = findViewById(R.id.buttonSignIn)
+        buttonGoToRegister = findViewById(R.id.buttonGoToRegister)
 
         buttonSignIn.setOnClickListener {
             hideKeyboard(it) // Hide keyboard after clicking on "Sign In" button.
@@ -51,7 +64,7 @@ class LoginActivity : AppCompatActivity() {
                         Intent(this, HomeActivity::class.java).also { it ->
                             startActivity(it)
                         }
-
+                        clearEditTextsLogin()
                     } else {
                         //val resultMessage = task.exception?.message
                         val resultLocalizedMessage = task.exception?.localizedMessage
@@ -67,6 +80,7 @@ class LoginActivity : AppCompatActivity() {
             Intent(this, RegisterActivity::class.java).also {
                 startActivity(it)
             }
+            clearEditTextsLogin()
         }
     }
 
@@ -82,6 +96,11 @@ class LoginActivity : AppCompatActivity() {
                 // Or load a new activity?
             }
         }
+    }
+
+    private fun clearEditTextsLogin(){
+        editTextLoginEmail.text.clear()
+        editTextLoginPassword.text.clear()
     }
 
 }

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.text.Editable
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
@@ -16,9 +17,11 @@ import com.google.firebase.ktx.Firebase
 class RegisterActivity : AppCompatActivity() {
 
     private lateinit var registerAuth: FirebaseAuth
-    private fun clearRegisterEditTexts() {
 
-    }
+    private lateinit var editTextRegisterEmail: EditText
+    private lateinit var editTextRegisterPassword: EditText
+    private lateinit var buttonCreateAccount: Button
+    private lateinit var buttonGoToLogin: Button
 
     @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,11 +30,10 @@ class RegisterActivity : AppCompatActivity() {
 
         registerAuth = Firebase.auth // Initialize the FirebaseAuth instance.
 
-        val editTextRegisterEmail: EditText = findViewById(R.id.editTextRegisterEmail)
-        val editTextRegisterPassword: EditText = findViewById(R.id.editTextRegisterPassword)
-
-        val buttonCreateAccount = findViewById<Button>(R.id.buttonCreateAccount)
-        val buttonGoToLogin = findViewById<Button>(R.id.buttonGoToLogin)
+        editTextRegisterEmail = findViewById(R.id.editTextRegisterEmail)
+        editTextRegisterPassword = findViewById(R.id.editTextRegisterPassword)
+        buttonCreateAccount = findViewById(R.id.buttonCreateAccount)
+        buttonGoToLogin = findViewById(R.id.buttonGoToLogin)
 
         buttonCreateAccount.setOnClickListener {
             hideKeyboard(it) // Hide keyboard after clicking on "Create account" button.
@@ -52,7 +54,7 @@ class RegisterActivity : AppCompatActivity() {
                             // TODO: Create an Alert to confirm the registration and to welcome the new user.
                             Toast.makeText(this, "Account created successfully. Welcome $myNewUserEmail.", Toast.LENGTH_LONG).show()
                         }
-
+                        clearEditTextsRegister()
                     } else {
                         //val resultMessage = task.exception?.message
                         val resultLocalizedMessage = task.exception?.localizedMessage
@@ -67,9 +69,13 @@ class RegisterActivity : AppCompatActivity() {
         buttonGoToLogin.setOnClickListener {
             Intent(this, LoginActivity::class.java).also {
                 startActivity(it)
-
             }
+            clearEditTextsRegister()
         }
     }
 
+    private fun clearEditTextsRegister() {
+        editTextRegisterEmail.text.clear()
+        editTextRegisterPassword.text.clear()
+    }
 }
