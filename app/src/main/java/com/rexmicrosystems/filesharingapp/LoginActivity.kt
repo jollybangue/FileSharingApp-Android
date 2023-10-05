@@ -22,7 +22,7 @@ import com.google.firebase.ktx.Firebase
 
 class LoginActivity : AppCompatActivity() {
 
-    private lateinit var myAuth: FirebaseAuth
+    private lateinit var loginAuth: FirebaseAuth
     @SuppressLint("RestrictedApi") // Automatically added after adding the expression "hideKeyboard(it)"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,7 +30,7 @@ class LoginActivity : AppCompatActivity() {
 
         // TODO: Disable the back button here.
 
-        myAuth = Firebase.auth // Initialize the FirebaseAuth instance.
+        loginAuth = Firebase.auth // Initialize the FirebaseAuth instance.
 
         val editTextLoginEmail = findViewById<EditText>(R.id.editTextLoginEmail)
         val editTextLoginPassword = findViewById<EditText>(R.id.editTextLoginPassword)
@@ -46,7 +46,7 @@ class LoginActivity : AppCompatActivity() {
                 val email = editTextLoginEmail.text.toString()
                 val password = editTextLoginPassword.text.toString()
 
-                myAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this) { task ->
+                loginAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this) { task ->
                     if (task.isSuccessful) {
                         Intent(this, HomeActivity::class.java).also { it ->
                             startActivity(it)
@@ -74,10 +74,13 @@ class LoginActivity : AppCompatActivity() {
         super.onStart()
         // When initializing the Activity, check to see if the user is currently signed in.
         // Check if user is signed in (non-null) and update UI accordingly.
-        val currentUser = myAuth.currentUser
+        val currentUser = loginAuth.currentUser
         if (currentUser != null) {
-            // reload()
-            // Or load a new activity?
+            Intent(this, HomeActivity::class.java).also { it ->
+                startActivity(it)
+                // reload()
+                // Or load a new activity?
+            }
         }
     }
 
