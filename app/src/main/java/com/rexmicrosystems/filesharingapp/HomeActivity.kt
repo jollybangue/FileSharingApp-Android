@@ -6,6 +6,8 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -32,25 +34,18 @@ class HomeActivity : AppCompatActivity() {
 
         textViewCurrentUser.text = homeAuth.currentUser?.email
 
-        // I use mutableMapOf() instead of HashMap() because mutableMapOf() keeps the order of key/values put, which is not the case of HashMap().
-        var fileMutableMap: MutableMap<String, String> = mutableMapOf<String, String>()
-        fileMutableMap["key001"] = "File 1"
-        fileMutableMap["key002"] = "File A"
-        fileMutableMap["key003"] = "File B"
-        fileMutableMap["key004"] = "Jolly"
+        var fileList = mutableListOf(
+            FileDetail("id001", "Jolly.rex"),
+            FileDetail("id002", "BBB.pdf"),
+            FileDetail("id003", "Video of my soccer goal.mp4"),
+            FileDetail("id004", "Early bird.jpeg")
+        )
 
-        var fileMutableMap2: MutableMap<String, String> = mutableMapOf<String, String>()
-        fileMutableMap2.put("Name", "Jolly")
-        fileMutableMap2["City"] = "Calgary"
-        fileMutableMap2.put("Nationality", "Cameroonian")
-        fileMutableMap2["name"] = "MBJ"
-
-        //fileMutableMap2.clear()
-        //fileMutableMap2.putAll(fileMutableMap)
+        recyclerViewFileList.adapter = FileDetailAdapter(fileList)
+        recyclerViewFileList.layoutManager = LinearLayoutManager(this)
 
         buttonUpload.setOnClickListener {
-            println("Content of fileMutableMap: $fileMutableMap")
-            println("Content of fileMutableMap2: $fileMutableMap2")
+            // TODO: Upload feature to be implemented...
         }
 
         buttonSignOut.setOnClickListener {
