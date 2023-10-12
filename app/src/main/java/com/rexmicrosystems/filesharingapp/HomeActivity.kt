@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -38,11 +39,16 @@ class HomeActivity : AppCompatActivity() {
             FileDetail("id001", "Jolly.rex"),
             FileDetail("id002", "BBB.pdf"),
             FileDetail("id003", "Video of my soccer goal.mp4"),
-            FileDetail("id004", "Early bird.jpeg")
+            FileDetail("id004", "Early bird.jpeg"),
+            FileDetail("id007", "Linkin Park - What I've Done")
         )
 
         recyclerViewFileList.adapter = FileDetailAdapter(fileList)
         recyclerViewFileList.layoutManager = LinearLayoutManager(this)
+        recyclerViewFileList.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL)) // Adding a divider to separate the items shown in the Recycler view.
+//        recyclerViewFileList.setOnClickListener {
+//            Toast.makeText(this, "Recycler View touched", Toast.LENGTH_SHORT).show()
+//        }
 
         buttonUpload.setOnClickListener {
             // TODO: Upload feature to be implemented...
