@@ -1,39 +1,32 @@
 package com.rexmicrosystems.filesharingapp
 
-import android.app.Dialog
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 
-// TODO: Add a welcome alert or Snackbar in Home activity, triggered when the login is successful.
-// TODO: Implement the "Sign Out" functionality.
 class HomeActivity : AppCompatActivity() {
-
-    private lateinit var homeAuth: FirebaseAuth
-    private lateinit var textViewCurrentUser: TextView
-    private lateinit var recyclerViewFileList: RecyclerView
-    private lateinit var buttonSignOut: Button
-    private lateinit var buttonUpload: Button
 
     companion object {
         // We cannot create static variables in Kotlin. Instead, we should use a companion object
         // All the fields of a companion object are static and therefore accessible from everywhere in the app.
+        lateinit var appAuth: FirebaseAuth
         var isNewUser: Boolean = false
-        // TODO: Add all the Firebase Authentication fields here in the companion object.
+        var userEmail: String? = null // userEmail = appAuth.currentUser?.email when the user account is successfully created (see RegisterActivity).
+        // As a rule, I decided that "userEmail" and all the companion fields (except "isNewUser") will be assigned a value ONLY from LoginActivity and RegisterActivity, and so NEVER from HomeActivity.
     }
+
+    private lateinit var textViewCurrentUser: TextView
+    private lateinit var recyclerViewFileList: RecyclerView
+    private lateinit var buttonSignOut: Button
+    private lateinit var buttonUpload: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,19 +36,18 @@ class HomeActivity : AppCompatActivity() {
             // isNewUser becomes true ONLY when the new user account is successfully created (when the "Create Account" button is tapped).
             MaterialAlertDialogBuilder(this)
                 // Note: With AlertDialog.Builder(this), while showing the dialog is less animated than with android.app.AlertDialog.Builder(this).
-                .setTitle("Account created")
-                .setMessage("Welcome Jolly Mambou Bangue!")
+                .setTitle("Account successfully created")
+                .setMessage("Welcome $userEmail. We hope you will enjoy this File Sharing app.")
                 .show()
             isNewUser = false // Once created the user is no longer new...
         }
 
-        homeAuth = Firebase.auth // Initialize the FirebaseAuth instance.
         textViewCurrentUser = findViewById(R.id.textViewCurrentUser)
         recyclerViewFileList = findViewById(R.id.recyclerViewFileList)
         buttonSignOut = findViewById(R.id.buttonSignOut)
         buttonUpload = findViewById(R.id.buttonUpload)
 
-        textViewCurrentUser.text = homeAuth.currentUser?.email
+        textViewCurrentUser.text = userEmail // Setting the text of the Home label with the email of the currently logged user.
 
         var fileList = mutableListOf(
             FileDetail("id001", "Jolly.rex"),
@@ -108,7 +100,7 @@ class HomeActivity : AppCompatActivity() {
 
                 }
                 .setPositiveButton("Sign Out") { _, _ ->
-                    homeAuth.signOut() // Add try...catch
+                    appAuth.signOut() // Add try...catch
                     Intent(this, LoginActivity::class.java).also {
                         startActivity(it)
                         finish()
@@ -118,7 +110,6 @@ class HomeActivity : AppCompatActivity() {
 
                 }
                 .show()
-
         }
     }
 }
