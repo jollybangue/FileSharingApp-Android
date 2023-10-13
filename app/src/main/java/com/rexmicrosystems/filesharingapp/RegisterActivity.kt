@@ -16,6 +16,9 @@ import com.google.firebase.ktx.Firebase
 
 class RegisterActivity : AppCompatActivity() {
 
+
+
+
     private lateinit var registerAuth: FirebaseAuth
 
     private lateinit var editTextRegisterEmail: EditText
@@ -47,14 +50,17 @@ class RegisterActivity : AppCompatActivity() {
                 registerAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(this) { task ->
                     if (task.isSuccessful) {
                         val myNewUserEmail = registerAuth.currentUser?.email
+                        HomeActivity.isNewUser = true
                         Intent(this, HomeActivity::class.java).also { it2 ->
                             startActivity(it2)
-                            //Snackbar.make(it, "Account created. Welcome $newUser.", 6000).show()
+                            finish()
 
                             // TODO: Create an Alert to confirm the registration and to welcome the new user.
-                            Toast.makeText(this, "Account created successfully. Welcome $myNewUserEmail.", Toast.LENGTH_LONG).show()
+                            //Toast.makeText(this, "Account created successfully. Welcome $myNewUserEmail.", Toast.LENGTH_LONG).show()
+
                         }
-                        clearEditTextsRegister()
+
+                        //clearEditTextsRegister() // This is not necessary anymore, since the activity has been destroyed...
                     } else {
                         //val resultMessage = task.exception?.message
                         val resultLocalizedMessage = task.exception?.localizedMessage
@@ -69,6 +75,7 @@ class RegisterActivity : AppCompatActivity() {
         buttonGoToLogin.setOnClickListener {
             Intent(this, LoginActivity::class.java).also {
                 startActivity(it)
+                finish()
             }
             clearEditTextsRegister()
         }

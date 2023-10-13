@@ -9,7 +9,7 @@
 //TODO: Improve Login and Register Firebase Authentication implementation.
 //  For example, when a user account is deleted in the Firebase Web Console,
 //  the user stays connected on the local device and the Home activity is automatically loaded when we launch the app (the problem seems to be fixed when we uninstall the app...).
-// Also, try to use fragments to navigate indefinitely between Login and Register screens.
+// Also, try to use fragments to navigate indefinitely between Login and Register screens (in that way there will be no need the destroy the previous activity while moving to a new activity).
 
 
 
@@ -29,7 +29,7 @@ import com.google.firebase.ktx.Firebase
 
 class LoginActivity : AppCompatActivity() {
 
-    private lateinit var loginAuth: FirebaseAuth
+    private lateinit var loginAuth: FirebaseAuth // TODO to be added to companion object
 
     private lateinit var editTextLoginEmail: EditText
     private lateinit var editTextLoginPassword: EditText
@@ -41,8 +41,6 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        // TODO: Disable the back button here.
-
         loginAuth = Firebase.auth // Initialize the FirebaseAuth instance.
 
         editTextLoginEmail = findViewById(R.id.editTextLoginEmail)
@@ -53,20 +51,20 @@ class LoginActivity : AppCompatActivity() {
         buttonSignIn.setOnClickListener {
             hideKeyboard(it) // Hide keyboard after clicking on "Sign In" button.
             if (editTextLoginEmail.text.toString().isEmpty() || editTextLoginPassword.text.toString().isEmpty()) {
-                //Toast.makeText(this, "Sorry, the Email or Password text field is empty...", Toast.LENGTH_SHORT).show()
                 Snackbar.make(it, "Sorry, the Email or Password text field is empty.", Snackbar.LENGTH_SHORT).show()
             } else {
-                val email = editTextLoginEmail.text.toString()
-                val password = editTextLoginPassword.text.toString()
+                val email: String = editTextLoginEmail.text.toString()
+                val password: String = editTextLoginPassword.text.toString()
 
                 loginAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this) { task ->
                     if (task.isSuccessful) {
                         Intent(this, HomeActivity::class.java).also { it ->
-                            startActivity(it)
+                            startActivity(it) // Loads HomeActivity
+                            finish() // Destroys LoginActivity in the background
                         }
-                        clearEditTextsLogin()
+                        clearEditTextsLogin() // TODO: Check if clearEditTextsLogin() is still necessary
                     } else {
-                        //val resultMessage = task.exception?.message
+                        // "val resultMessage = task.exception?.message" can also be used
                         val resultLocalizedMessage = task.exception?.localizedMessage
                         Snackbar.make(it, resultLocalizedMessage.toString(), 6000).show()
                     // Duration: 6000 ms. We can also use "resultLocalizedMessage!!" to unwrap the value (to be used ONLY if we are 100% sure that resultLocalizedMessage is non null).
@@ -79,6 +77,7 @@ class LoginActivity : AppCompatActivity() {
         buttonGoToRegister.setOnClickListener {
             Intent(this, RegisterActivity::class.java).also {
                 startActivity(it)
+                finish()
             }
             clearEditTextsLogin()
         }
@@ -86,18 +85,20 @@ class LoginActivity : AppCompatActivity() {
 
     public override fun onStart() {
         super.onStart()
-        // When initializing the Activity, check to see if the user is currently signed in.
-        // Check if user is signed in (non-null) and update UI accordingly.
-        val currentUser = loginAuth.currentUser
+
+        // TODO: Check if the lines below can be implemented in the onCreate() function instead
+        val currentUser = loginAuth.currentUser // TODO: To be added to the companion object
+        // When initializing this Activity (LoginActivity), checks to see if a user is currently signed in.
         if (currentUser != null) {
+            // Checks if user is signed in (non-null) and update UI accordingly.
             Intent(this, HomeActivity::class.java).also { it ->
-                startActivity(it)
-                // reload()
-                // Or load a new activity?
+                startActivity(it) // Launches activity HomeActivity
+                finish() // Destroys current activity (LoginActivity)
             }
         }
     }
 
+    // TODO: Check if clearEditTextsLogin() is still necessary here or need to be implemented in the companion object instead.
     private fun clearEditTextsLogin(){
         editTextLoginEmail.text.clear()
         editTextLoginPassword.text.clear()
