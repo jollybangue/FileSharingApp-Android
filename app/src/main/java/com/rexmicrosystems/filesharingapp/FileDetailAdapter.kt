@@ -1,5 +1,6 @@
 package com.rexmicrosystems.filesharingapp
 
+import android.content.DialogInterface
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,7 +9,13 @@ import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
+// TODO: Make the alert dialogs cancellable or non-cancellable. "setCancelable" requires a boolean value. By default all alert dialogs are cancelable on button click or touch outside. If this method is set to false, you need to explicitly cancel the dialog using dialog.cancel() method.
+
 class FileDetailAdapter(private var fileDetailList: List<FileDetail>): RecyclerView.Adapter<FileDetailAdapter.FileDetailViewHolder>() {
+
+    // Alert Dialog buttons: Neutral: "FILE DETAILS", Positive: "SHARE", Negative: "CANCEL"
+    val fileAction = arrayOf("Open in Image View", "Open in Web View", "Open with System", "Download in the Default App Folder", "Download in Specified Location")
+
 
     class FileDetailViewHolder(fileDetailView: View): RecyclerView.ViewHolder(fileDetailView) {
         val textViewFileName: TextView = fileDetailView.findViewById(R.id.textViewFileName)
@@ -25,8 +32,7 @@ class FileDetailAdapter(private var fileDetailList: List<FileDetail>): RecyclerV
 
     override fun onBindViewHolder(holder: FileDetailViewHolder, position: Int) {
 
-        // Alert Dialog buttons: Neutral: "FILE DETAILS", Positive: "SHARE", Negative: "CANCEL"
-        val fileAction = arrayOf("Open in Image View", "Open in Web View", "Open with System", "Download in the Default App Folder", "Download in Specified Location")
+
 
         var fileSelectedName = fileDetailList[position].name
 
