@@ -8,34 +8,39 @@ import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
-// TODO: Make the alert dialogs cancellable or non-cancellable. "setCancelable" requires a boolean value. By default all alert dialogs are cancelable on button click or touch outside. If this method is set to false, you need to explicitly cancel the dialog using dialog.cancel() method.
+class FileDetailAdapter(private var fileList: List<FileDetail>): RecyclerView.Adapter<FileDetailAdapter.FileDetailViewHolder>() {
+    // fileList is the parameter of the constructor
 
-class FileDetailAdapter(private var fileDetailList: List<FileDetail>): RecyclerView.Adapter<FileDetailAdapter.FileDetailViewHolder>() {
-
-    class FileDetailViewHolder(fileDetailView: View): RecyclerView.ViewHolder(fileDetailView) {
-        val textViewFileName: TextView = fileDetailView.findViewById(R.id.textViewFileName)
+    class FileDetailViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
+        val textViewFileName: TextView = itemView.findViewById(R.id.textViewFileName)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FileDetailViewHolder {
-        val myAdapterLayout = LayoutInflater.from(parent.context).inflate(R.layout.file_item, parent, false)
-        return FileDetailViewHolder(myAdapterLayout)
+    // Creating the view holder (FileDetailViewHolder)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FileDetailViewHolder { // Should return FileDetailViewHolder type
+        val fileDetailView = LayoutInflater.from(parent.context).inflate(R.layout.file_item, parent, false)
+        return FileDetailViewHolder(fileDetailView) // fileDetailView is the view of one item of the recycler view. In our case, one item is a fileDetail object (a text view containing the name of a file stored in the Firebase Cloud Storage)
     }
 
     override fun getItemCount(): Int {
-        return fileDetailList.size
+        return fileList.size // Returning the number of FileDetail objects stored in the list (fileList) used as data source for the recycler view.
     }
 
     override fun onBindViewHolder(holder: FileDetailViewHolder, position: Int) {
 
-        var fileSelectedName = fileDetailList[position].name
+        val fileSelectedName = fileList[position].name
 
         holder.textViewFileName.text = fileSelectedName
 
-        // List of actions shown when the user click on a file
+        // List of actions shown when the user click on a file. Will be used to set items in the fileActionsDialog...
         val fileAction = arrayOf("Open in Image View", "Open in Web View", "Open with System", "Download in the Default App Folder", "Download in Specified Location")
 
         holder.itemView.setOnClickListener {
+            // VERY IMPORTANT NOTE: In "file_item.xml", android:foreground="?selectableItemBackground" allows to highlight the selected item.
+            // Do I need  android:clickable="true" and android:focusable="true" ??? It seems NO!!!.
 
+            //notifyItemChanged(position)
+
+            // Unable to define fileActionsDialog outside .setOnClickListener{}...
             val fileActionsDialog = MaterialAlertDialogBuilder(it.context)
             fileActionsDialog
                 .setCancelable(false)
@@ -66,11 +71,6 @@ class FileDetailAdapter(private var fileDetailList: List<FileDetail>): RecyclerV
                     println("Content of i local variable: $i")
                 }
                 .show()
-
-            //notifyItemChanged(position)
-
-            //    In "file_item.xml", android:foreground="?selectableItemBackground" allows to highlight the selected item.
-            //    Do I need  android:clickable="true" and android:focusable="true" ??? It seems NO!!!.
         }
     }
 

@@ -21,6 +21,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
+import android.widget.Toast
 import com.google.android.material.internal.ViewUtils.hideKeyboard // Automatically added after adding the expression "hideKeyboard(it)"
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.ktx.auth
@@ -63,6 +64,7 @@ class LoginActivity : AppCompatActivity() {
                         userEmail = appAuth.currentUser?.email
 
                         Intent(this, HomeActivity::class.java).also { it ->
+                            Toast.makeText(this, "Welcome $userEmail", Toast.LENGTH_LONG).show()
                             startActivity(it) // Loads HomeActivity
                             finish() // Destroys LoginActivity in the background
                         }

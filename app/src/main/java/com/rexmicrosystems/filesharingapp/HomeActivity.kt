@@ -39,8 +39,8 @@ class HomeActivity : AppCompatActivity() {
             // isNewUser becomes true ONLY when the new user account is successfully created (when the "Create Account" button is tapped).
             MaterialAlertDialogBuilder(this)
                 // Note: With AlertDialog.Builder(this), while showing the dialog is less animated than with android.app.AlertDialog.Builder(this).
-                .setTitle("Account successfully created")
-                .setMessage("Welcome $userEmail.\nWe hope you will enjoy this File Sharing App.")
+                .setTitle("Account successfully created.")
+                .setMessage("Welcome $userEmail.\nWe hope you will enjoy this File Sharing App!")
                 .show()
             isNewUser = false // Once created the user is no longer new...
         }
@@ -52,8 +52,8 @@ class HomeActivity : AppCompatActivity() {
 
         textViewCurrentUser.text = userEmail // Setting the text of the Home label with the email of the currently logged user.
 
-        // Data source...
-        var fileList = mutableListOf(
+        // Data source, containing a list of FileDetail objects, which will be displayed in the recycler view.
+        var fileDetailList = mutableListOf(
             FileDetail("id001", "Jolly.rex"),
             FileDetail("id002", "BBB.pdf"),
             FileDetail("id003", "Video of my soccer goal.mp4"),
@@ -63,7 +63,7 @@ class HomeActivity : AppCompatActivity() {
 
         val uploadActionItem = arrayOf("Upload from Gallery", "Upload from Another Location") // TODO: Check if it is better to just use buttons instead, NOT this list of 2 elements.
 
-        recyclerViewFileList.adapter = FileDetailAdapter(fileList)
+        recyclerViewFileList.adapter = FileDetailAdapter(fileDetailList)
         recyclerViewFileList.layoutManager = LinearLayoutManager(this)
         recyclerViewFileList.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL)) // Adding a divider to separate the items shown in the Recycler view.
 
@@ -101,7 +101,7 @@ class HomeActivity : AppCompatActivity() {
                     Intent(this, LoginActivity::class.java).also {
                         startActivity(it) // Start LoginActivity
                         finish() // Destroys the Home activity. In that way, when the back button will be pushed after Signing out we won't be able to back to the Home screen.
-                        Toast.makeText(this, "User $userEmail logged out successfully", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "User $userEmail successfully logged out", Toast.LENGTH_LONG).show()
                     }
                 }
                 .show() // Showing the Sign Out Dialog
