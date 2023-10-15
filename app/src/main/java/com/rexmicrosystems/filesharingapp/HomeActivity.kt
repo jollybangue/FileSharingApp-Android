@@ -61,7 +61,7 @@ class HomeActivity : AppCompatActivity() {
             FileDetail("id007", "Linkin Park - What I've Done.mp3")
         )
 
-        val uploadActionItem = arrayOf("Upload from Gallery", "Upload from Another Location")
+        val uploadActionItem = arrayOf("Upload from Gallery", "Upload from Another Location") // TODO: Check if it is better to just use buttons instead, NOT this list of 2 elements.
 
         recyclerViewFileList.adapter = FileDetailAdapter(fileList)
         recyclerViewFileList.layoutManager = LinearLayoutManager(this)
@@ -69,8 +69,10 @@ class HomeActivity : AppCompatActivity() {
 
         buttonUpload.setOnClickListener {
             // TODO: Upload feature to be implemented...
-            MaterialAlertDialogBuilder(this)
+            val uploadDialog = MaterialAlertDialogBuilder(this)
+            uploadDialog
                 .setTitle("Upload a File")
+
                 .setPositiveButton("CANCEL") {_, _ ->
                     Toast.makeText(this, "Upload cancelled", Toast.LENGTH_SHORT).show()
                 }
@@ -81,27 +83,28 @@ class HomeActivity : AppCompatActivity() {
                     println("Content of dialog local variable: $dialog")
                     println("Content of i local variable: $i")
                 }
-                .show() // It seems that there is no need to invoke create() when show() will be invoked right after.
+                .setCancelable(false)
+                .show() // It seems that there is no need to invoke create() when show() will be invoked right after (because show() = create() + show()).
         }
 
         buttonSignOut.setOnClickListener {
-            // TODO: Add a confirmation dialog
-            MaterialAlertDialogBuilder(this)
+            val signOutDialog = MaterialAlertDialogBuilder(this)
+            signOutDialog
                 .setTitle("Confirmation")
                 .setMessage("Do you want to sign out?")
+                .setCancelable(false) // The dialog will be cancelled ONLY when the user choose an action inside the dialog, NOT by clicking outside the dialog.
                 .setNegativeButton("Cancel") { _, _ ->
                     Toast.makeText(this, "Cancelled sign-out", Toast.LENGTH_SHORT).show()
                 }
                 .setPositiveButton("Sign Out") { _, _ ->
-                    appAuth.signOut() // Add try...catch
+                    appAuth.signOut() // TODO: Add try...catch
                     Intent(this, LoginActivity::class.java).also {
                         startActivity(it) // Start LoginActivity
                         finish() // Destroys the Home activity. In that way, when the back button will be pushed after Signing out we won't be able to back to the Home screen.
                         Toast.makeText(this, "User $userEmail logged out successfully", Toast.LENGTH_SHORT).show()
                     }
-
                 }
-                .show()
+                .show() // Showing the Sign Out Dialog
         }
     }
 }
