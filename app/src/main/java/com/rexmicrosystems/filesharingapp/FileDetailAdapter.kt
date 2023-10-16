@@ -43,8 +43,8 @@ class FileDetailAdapter(private var fileList: List<FileDetail>): RecyclerView.Ad
             // Creating fileActionsDialog which will be shown when the user clicks on a file. NOTE: Unable to define fileActionsDialog outside .setOnClickListener{}...
             val fileActionsDialog = MaterialAlertDialogBuilder(it.context)
             fileActionsDialog
-                .setCancelable(false) // The user should select an item or a button to dismiss the alert dialog.
                 .setTitle(fileSelectedName)
+                .setCancelable(false) // The user should select an item or a button to dismiss the alert dialog.
 
                 .setPositiveButton("SHARE") {_, _ ->
                     // TODO: Implement SHARE file action

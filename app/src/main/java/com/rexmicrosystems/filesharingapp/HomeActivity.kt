@@ -9,11 +9,15 @@ import android.widget.Toast
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.auth.api.signin.internal.Storage
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
 
 
 // TODO: Improve alert dialog management
+// TODO: Generate app documentation
 
 class HomeActivity : AppCompatActivity() {
 
@@ -30,6 +34,9 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var recyclerViewFileList: RecyclerView
     private lateinit var buttonSignOut: Button
     private lateinit var buttonUpload: Button
+
+    private val myStorageRef = Firebase.storage.reference // Firebase Cloud Storage reference of this app. iOS Swift: private let myStorageRef = Storage.storage().reference()
+    private val fileStorageRoot = "FileSharingApp" // Root of the app data in the Firebase Cloud Storage
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,6 +79,7 @@ class HomeActivity : AppCompatActivity() {
             val uploadDialog = MaterialAlertDialogBuilder(this)
             uploadDialog
                 .setTitle("Upload a File")
+                .setCancelable(false)
 
                 .setPositiveButton("CANCEL") {_, _ ->
                     Toast.makeText(this, "Upload cancelled", Toast.LENGTH_SHORT).show()
@@ -83,7 +91,6 @@ class HomeActivity : AppCompatActivity() {
                     println("Content of dialog local variable: $dialog")
                     println("Content of i local variable: $i")
                 }
-                .setCancelable(false)
                 .show() // It seems that there is no need to invoke create() when show() will be invoked right after (because show() = create() + show()).
         }
 
@@ -106,6 +113,36 @@ class HomeActivity : AppCompatActivity() {
                 }
                 .show() // Showing the Sign Out Dialog
         }
+    }
+
+
+    /**
+     * This function get the list of files stored in the Firebase cloud storage and save it into
+     * the Realtime database using the setFileNamesInRealtimeDB() function.
+     */
+    fun copyDataFromStorageToRealtimeDB() {
+
+
+    }
+
+    /**
+     * This This function takes a list of fileReferences (array of StorageReference objects)
+     * from the Firebase Cloud Storage, then extracts and stores the name of each file in the
+     * Realtime database, with an associate unique ID.
+     *
+     * NOTE: This function cannot be directly called by the app, but ONLY by the function
+     * copyDataFromStorageToRealtimeDB() and can be ONLY used INSIDE the "listAll" function.
+     */
+    fun setFileNamesInRealtimeDB() {
+
+    }
+
+    /**
+     * This function allows the app to get and observe in realtime, the name of the files stored in
+     * the Firebase cloud storage.
+     */
+    fun getFileNamesFromRealtimeDB() {
+
     }
 }
 
