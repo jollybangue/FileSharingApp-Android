@@ -11,7 +11,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
+import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import com.google.firebase.storage.ktx.component1
@@ -19,6 +23,7 @@ import com.google.firebase.storage.ktx.component2
 
 // TODO: Improve alert dialog management
 // TODO: Generate app documentation
+// TODO: URGENT - When a new iOS user log in, the home screen blinks/flashes (because of the refreshment of the Realtime Database)
 
 class HomeActivity : AppCompatActivity() {
 
@@ -36,7 +41,7 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var buttonUpload: Button
     private lateinit var buttonSignOut: Button
 
-    var fileDetailList: MutableList<FileDetail> = mutableListOf()
+    var fileDetailList: MutableList<FileDetail> = mutableListOf() // NOTE: Difference between array and mutable list: An array has a fixed size, whereas the size of a mutable list can increase or decrease dynamically.
 
 
     private val myStorageRef = Firebase.storage.reference // Pointing to the Firebase Cloud Storage root folder. iOS Swift: private let myStorageRef = Storage.storage().reference()
@@ -44,9 +49,6 @@ class HomeActivity : AppCompatActivity() {
 
     private val realtimeDbRef = Firebase.database.reference // Pointing to the Firebase Realtime Database root node (It is the Realtime database reference). iOS Swift: private let realtimeDbRef = Database.database().reference()
     private val realtimeDbRoot = "FileSharingApp" // Root folder of the app data in the Realtime database.
-
-    //private lateinit var realtimeFileList: MutableList<FileDetail> // NOTE: Difference between array and mutable list: An array has a fixed size, whereas the size of a mutable list can increase or decrease dynamically.
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -80,6 +82,9 @@ class HomeActivity : AppCompatActivity() {
 //            FileDetail("id007", "Linkin Park - What I've Done.mp3"),
 //            FileDetail("00100", "Metal Gear Solid V - The Phantom Pain.ps4")
 //        )
+
+        recyclerViewFileList.layoutManager = LinearLayoutManager(this)
+        recyclerViewFileList.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL)) // Adding a divider to separate the items shown in the Recycler view.
 
 
         copyDataFromStorageToRealtimeDB() // Getting the list of files available in the Firebase Cloud Storage and storing them in the Realtime Database.
@@ -134,7 +139,7 @@ class HomeActivity : AppCompatActivity() {
      * This function gets the list of files stored in the Firebase cloud storage and save it into
      * the Realtime database.
      */
-    fun copyDataFromStorageToRealtimeDB() {
+    private fun copyDataFromStorageToRealtimeDB() {
         myStorageRef.child(fileStorageRoot).listAll()
             .addOnSuccessListener { (items, prefixes) ->
 
@@ -151,14 +156,12 @@ class HomeActivity : AppCompatActivity() {
 
                     realtimeDbRef.child(realtimeDbRoot).child("id$id").setValue(item.name) // Writing file names gotten from Firebase cloud storage into Firebase Realtime database, with ids generated manually. Min: id1000, Max: id9999, Total: 9000 potential ids.
 
-                    fileDetailList.add(FileDetail("id$id", item.name))
-                    println("FileDetailList INSIDE listAll(): $fileDetailList")
+//                    fileDetailList.add(FileDetail("id$id", item.name))
+//                    println("FileDetailList INSIDE listAll(): $fileDetailList")
 
                     id += 1 // Incrementing the id.
                 }
-                recyclerViewFileList.adapter = FileDetailAdapter(fileDetailList)
-                recyclerViewFileList.layoutManager = LinearLayoutManager(this)
-                recyclerViewFileList.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL)) // Adding a divider to separate the items shown in the Recycler view.
+//                recyclerViewFileList.adapter = FileDetailAdapter(fileDetailList)
 
             }
             .addOnFailureListener {
@@ -171,8 +174,46 @@ class HomeActivity : AppCompatActivity() {
      * This function allows the app to get and observe in realtime, the name of the files stored in
      * the Firebase cloud storage.
      */
-    fun getFileNamesFromRealtimeDB() {
-        //realtimeDbRef.child(realtimeDbRoot).addChildEventListener()
+    private fun getFileNamesFromRealtimeDB() {
+
+        val realtimeFileListListener = object : ValueEventListener {
+            /**
+             * This method will be called with a snapshot of the data at this location. It will also be called
+             * each time that data changes.
+             *
+             * @param snapshot The current data at the location
+             */
+            override fun onDataChange(fileListSnapshot: DataSnapshot) {
+
+                var contentOfSnapshot = fileListSnapshot.value as Map<*, *>?
+                //showAlertDialog("Content of fileListSnapshot", "Details: ${fileListSnapshot.value}")
+
+                fileDetailList = mutableListOf()
+
+                if (contentOfSnapshot != null) {
+                    for ((key, value) in contentOfSnapshot) {
+                        fileDetailList.add(FileDetail(key as String, value as String))
+                    }
+                }
+
+                recyclerViewFileList.adapter = FileDetailAdapter(fileDetailList)
+
+            }
+
+            /**
+             * This method will be triggered in the event that this listener either failed at the server, or
+             * is removed as a result of the security and Firebase Database rules. For more information on
+             * securing your data, see: [ Security Quickstart](https://firebase.google.com/docs/database/security/quickstart)
+             *
+             * @param error A description of the error that occurred
+             */
+            override fun onCancelled(error: DatabaseError) {
+                showAlertDialog("Realtime Database Error", "Details: ${error.message}")
+            }
+
+        }
+
+        realtimeDbRef.child(realtimeDbRoot).addValueEventListener(realtimeFileListListener)
 
     }
 
