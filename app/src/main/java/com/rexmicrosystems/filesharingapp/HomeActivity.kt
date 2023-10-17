@@ -36,6 +36,8 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var buttonUpload: Button
     private lateinit var buttonSignOut: Button
 
+    var fileDetailList: MutableList<FileDetail> = mutableListOf()
+
 
     private val myStorageRef = Firebase.storage.reference // Pointing to the Firebase Cloud Storage root folder. iOS Swift: private let myStorageRef = Storage.storage().reference()
     private val fileStorageRoot = "FileSharingApp" // Root folder of the app data in the Firebase Cloud Storage.
@@ -70,21 +72,19 @@ class HomeActivity : AppCompatActivity() {
         textViewCurrentUser.text = userEmail // Setting the text of the Home label with the email of the currently logged user.
 
         // Data source, containing a list of FileDetail objects, which will be displayed in the recycler view.
-        var fileDetailList = mutableListOf(
-            FileDetail("id001", "Jolly.rex"),
-            FileDetail("id002", "BBB.pdf"),
-            FileDetail("id003", "Video of my soccer goal.mp4"),
-            FileDetail("id004", "Early bird.jpeg"),
-            FileDetail("id007", "Linkin Park - What I've Done.mp3"),
-            FileDetail("00100", "Metal Gear Solid V - The Phantom Pain.ps4")
-        )
+//        fileDetailList = mutableListOf(
+//            FileDetail("id001", "Jolly.rex"),
+//            FileDetail("id002", "BBB.pdf"),
+//            FileDetail("id003", "Video of my soccer goal.mp4"),
+//            FileDetail("id004", "Early bird.jpeg"),
+//            FileDetail("id007", "Linkin Park - What I've Done.mp3"),
+//            FileDetail("00100", "Metal Gear Solid V - The Phantom Pain.ps4")
+//        )
+
 
         copyDataFromStorageToRealtimeDB() // Getting the list of files available in the Firebase Cloud Storage and storing them in the Realtime Database.
         getFileNamesFromRealtimeDB() // Get and observe the file list stored in the Realtime Database.
 
-        recyclerViewFileList.adapter = FileDetailAdapter(fileDetailList)
-        recyclerViewFileList.layoutManager = LinearLayoutManager(this)
-        recyclerViewFileList.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL)) // Adding a divider to separate the items shown in the Recycler view.
 
         buttonUpload.setOnClickListener {
             // TODO: Upload feature to be implemented...
@@ -132,48 +132,58 @@ class HomeActivity : AppCompatActivity() {
 
     /**
      * This function gets the list of files stored in the Firebase cloud storage and save it into
-     * the Realtime database using the setFileNamesInRealtimeDB() function.
+     * the Realtime database.
      */
     fun copyDataFromStorageToRealtimeDB() {
-//        myStorageRef.child(fileStorageRoot).listAll()
-//            .addOnSuccessListener { (items, prefixes) ->
-//
-//                realtimeDbRef.child(realtimeDbRoot).removeValue() // Deletes all the current values in realtime database app folder to avoid duplication issues.
-//
-//                for (prefix in prefixes) { // List of folder storage references.
-//                    // TODO: Implement folder management
-//                }
-//
-//                for (item in items) { // List of file storage references.
-//                    realtimeDbRef.child(realtimeDbRoot).
-//                }
-//            }
+        myStorageRef.child(fileStorageRoot).listAll()
+            .addOnSuccessListener { (items, prefixes) ->
 
+                realtimeDbRef.child(realtimeDbRoot).removeValue() // Deletes all the current values in realtime database app folder to avoid duplication issues.
 
+                for (prefix in prefixes) { // List of folder storage references.
+                    // All the prefixes (folders) under fileStorageRoot.
+                    // We may call listAll() recursively on them.
+                    // TODO: Implement folder management
+                }
+
+                var id = 1000 // Initializing the file id which will be used to store the file in the Realtime database. With id = 10, we have ids from 10 to 99; With id = 100, we have ids from 100 to 999; With id = 1000, we have ids from 1000 to 9999.
+                for (item in items) { // List of file storage references. All the items (files) under fileStorageRoot.
+
+                    realtimeDbRef.child(realtimeDbRoot).child("id$id").setValue(item.name) // Writing file names gotten from Firebase cloud storage into Firebase Realtime database, with ids generated manually. Min: id1000, Max: id9999, Total: 9000 potential ids.
+
+                    fileDetailList.add(FileDetail("id$id", item.name))
+                    println("FileDetailList INSIDE listAll(): $fileDetailList")
+
+                    id += 1 // Incrementing the id.
+                }
+                recyclerViewFileList.adapter = FileDetailAdapter(fileDetailList)
+                recyclerViewFileList.layoutManager = LinearLayoutManager(this)
+                recyclerViewFileList.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL)) // Adding a divider to separate the items shown in the Recycler view.
+
+            }
+            .addOnFailureListener {
+                showAlertDialog("Error while getting the list of the files stored in the cloud", "Details: ${it.message}")
+            }
     }
 
-    /**
-     * This This function takes a list of fileReferences (array of StorageReference objects)
-     * from the Firebase Cloud Storage, then extracts and stores the name of each file in the
-     * Realtime database, with an associate unique ID.
-     *
-     * NOTE: This function cannot be directly called by the app, but ONLY by the function
-     * copyDataFromStorageToRealtimeDB() and can be ONLY used INSIDE the "listAll" function.
-     */
-    fun setFileNamesInRealtimeDB() {
-
-    }
 
     /**
      * This function allows the app to get and observe in realtime, the name of the files stored in
      * the Firebase cloud storage.
      */
     fun getFileNamesFromRealtimeDB() {
-        //lateinit var fileList: MutableList<FileDetail>
+        //realtimeDbRef.child(realtimeDbRoot).addChildEventListener()
 
+    }
 
-
-        //return fileList
+    fun showAlertDialog (title: String, message: String) {
+        var myAlertDialog = MaterialAlertDialogBuilder(this)
+        myAlertDialog
+            .setTitle(title)
+            .setMessage(message)
+            .setCancelable(false)
+            .setNegativeButton("OK") {_, _ ->}
+            .show()
     }
 }
 
