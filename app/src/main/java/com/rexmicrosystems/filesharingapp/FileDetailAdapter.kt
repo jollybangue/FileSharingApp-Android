@@ -32,7 +32,7 @@ class FileDetailAdapter(private var fileList: List<FileDetail>): RecyclerView.Ad
         holder.textViewFileName.text = fileSelectedName
 
         // List of actions shown when the user click on a file. Will be used to set items in the fileActionsDialog...
-        val fileAction = arrayOf("Open in Image View", "Open in Web View", "Open with System", "Download in the Default App Folder", "Download in Specified Location")
+        val fileAction = arrayOf("Open in Image View", "Open in Web View", "Open with System", "Download in the Default App Folder", "Download in Specified Location", "Delete File")
 
         holder.itemView.setOnClickListener {
             // VERY IMPORTANT NOTE: In "file_item.xml", android:foreground="?selectableItemBackground" allows to highlight the selected item.
