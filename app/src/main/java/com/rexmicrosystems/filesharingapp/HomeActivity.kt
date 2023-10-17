@@ -24,6 +24,10 @@ import com.google.firebase.storage.ktx.component2
 // TODO: Improve alert dialog management
 // TODO: Generate app documentation
 // TODO: URGENT - When a new iOS user log in, the home screen blinks/flashes (because of the refreshment of the Realtime Database)
+// TODO: Sort the data got from the realtime database
+// TODO: Implement "File Details", "Delete File", "Upload File", "Download File", "Open File", "Share"
+// TODO: Implement Swipe to delete file
+
 
 class HomeActivity : AppCompatActivity() {
 
