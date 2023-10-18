@@ -208,6 +208,8 @@ class HomeActivity : AppCompatActivity() {
                     }
 
                 }
+                // TODO: Temporary solution for the version 1.0 of the app (since the Realtime database management system is not yet optimized): Reload the recyclerViewFileList ONLY if the sortedMap IS DIFFERENT from the current fileDetailList. An IF condition seems to be used...
+                // TODO: See how to prevent the recyclerViewFileList from reinitializing its file position when there is any new event from the realtime database (new user connected, new file uploaded, file deleted, ...).
                 recyclerViewFileList.adapter = FileDetailAdapter(fileDetailList) // Passing fileDetailList to the recycler view via the adapter. NOTE: fileDetailList is NOT accessible outside onDataChange() function.
             }
 
