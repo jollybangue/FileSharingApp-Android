@@ -15,18 +15,20 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
-import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import com.google.firebase.storage.ktx.component1
 import com.google.firebase.storage.ktx.component2
+import java.util.TreeMap
 
 // TODO: Improve alert dialog management
 // TODO: Generate app documentation
-// TODO: URGENT - When a new iOS user log in, the home screen blinks/flashes (because of the refreshment of the Realtime Database)
+// TODO: URGENT - When a new iOS/Android user log in, the home screen blinks/flashes (because of the refreshment of the Realtime Database), the screen (recycler view) is entirely refreshed and the list is repositioned at the top (the top files appear...)
 // TODO: Sort the data got from the realtime database
 // TODO: Implement "File Details", "Delete File", "Upload File", "Download File", "Open File", "Share"
 // TODO: Implement Swipe to delete file
+// TODO: Check if the error while connecting to the Firebase cloud storage is handled.
+
 
 
 class HomeActivity : AppCompatActivity() {
@@ -121,12 +123,12 @@ class HomeActivity : AppCompatActivity() {
             val signOutDialog = MaterialAlertDialogBuilder(this)
             signOutDialog
                 .setTitle("Confirmation")
-                .setMessage("Do you want to sign out?")
+                .setMessage("${userEmail}\n\nDo you want to sign out?")
                 .setCancelable(false) // The dialog will be cancelled ONLY when the user choose an action inside the dialog, NOT by clicking outside the dialog.
-                .setNegativeButton("Cancel") { _, _ ->
-                    Toast.makeText(this, "Cancelled sign-out", Toast.LENGTH_SHORT).show()
+                .setNegativeButton("CANCEL") { _, _ ->
+                    Toast.makeText(this, "You cancelled sign out", Toast.LENGTH_SHORT).show()
                 }
-                .setPositiveButton("Sign Out") { _, _ ->
+                .setPositiveButton("SIGN OUT") { _, _ ->
                     appAuth.signOut() // TODO: Add try...catch
                     Intent(this, LoginActivity::class.java).also {
                         startActivity(it) // Start LoginActivity
@@ -149,11 +151,11 @@ class HomeActivity : AppCompatActivity() {
 
                 realtimeDbRef.child(realtimeDbRoot).removeValue() // Deletes all the current values in realtime database app folder to avoid duplication issues.
 
-                for (prefix in prefixes) { // List of folder storage references.
-                    // All the prefixes (folders) under fileStorageRoot.
-                    // We may call listAll() recursively on them.
-                    // TODO: Implement folder management
-                }
+//                for (prefix in prefixes) { // List of folder storage references.
+//                    // All the prefixes (folders) under fileStorageRoot.
+//                    // We may call listAll() recursively on them.
+//                    // TODO: Implement folder management
+//                }
 
                 var id = 1000 // Initializing the file id which will be used to store the file in the Realtime database. With id = 10, we have ids from 10 to 99; With id = 100, we have ids from 100 to 999; With id = 1000, we have ids from 1000 to 9999.
                 for (item in items) { // List of file storage references. All the items (files) under fileStorageRoot.
@@ -180,28 +182,33 @@ class HomeActivity : AppCompatActivity() {
      */
     private fun getFileNamesFromRealtimeDB() {
 
+        // Defining listener which will be passed to addValueEventListener() below
         val realtimeFileListListener = object : ValueEventListener {
             /**
              * This method will be called with a snapshot of the data at this location. It will also be called
              * each time that data changes.
              *
-             * @param snapshot The current data at the location
+             * @param fileListSnapshot The current data at the location
              */
             override fun onDataChange(fileListSnapshot: DataSnapshot) {
 
-                var contentOfSnapshot = fileListSnapshot.value as Map<*, *>?
-                //showAlertDialog("Content of fileListSnapshot", "Details: ${fileListSnapshot.value}")
+                val snapshotFileNamesMap = fileListSnapshot.value as Map<*, *>? // Getting the value of fileListSnapshot and casting it as Map.
 
                 fileDetailList = mutableListOf()
 
-                if (contentOfSnapshot != null) {
-                    for ((key, value) in contentOfSnapshot) {
-                        fileDetailList.add(FileDetail(key as String, value as String))
+                if (snapshotFileNamesMap != null) { // Unwrapping snapshotFileNamesMap
+                    // Here we need to sort the map snapshotFileNamesMap by keys natural order
+                    // There are many ways to proceed. Please see: https://www.techiedelight.com/sort-map-by-keys-kotlin/
+
+                    // I chose to convert snapshotFileNamesMap into a TreeMap. In a TreeMap, the elements are always sorted by keys' natural ordering.
+                    val sortedMap = TreeMap(snapshotFileNamesMap)
+
+                    for ((key, value) in sortedMap) {
+                        fileDetailList.add(FileDetail(key as String, value as String)) // Casting sortedMap's keys and values of type Any? to String.
                     }
+
                 }
-
-                recyclerViewFileList.adapter = FileDetailAdapter(fileDetailList)
-
+                recyclerViewFileList.adapter = FileDetailAdapter(fileDetailList) // Passing fileDetailList to the recycler view via the adapter. NOTE: fileDetailList is NOT accessible outside onDataChange() function.
             }
 
             /**
@@ -217,12 +224,12 @@ class HomeActivity : AppCompatActivity() {
 
         }
 
+        // Adding a listener to check any data change which could occur at the realtime database root of this app.
         realtimeDbRef.child(realtimeDbRoot).addValueEventListener(realtimeFileListListener)
-
     }
 
     fun showAlertDialog (title: String, message: String) {
-        var myAlertDialog = MaterialAlertDialogBuilder(this)
+        val myAlertDialog = MaterialAlertDialogBuilder(this)
         myAlertDialog
             .setTitle(title)
             .setMessage(message)
@@ -231,4 +238,3 @@ class HomeActivity : AppCompatActivity() {
             .show()
     }
 }
-
