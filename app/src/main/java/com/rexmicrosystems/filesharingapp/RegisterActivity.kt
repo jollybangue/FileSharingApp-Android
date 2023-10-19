@@ -60,7 +60,7 @@ class RegisterActivity : AppCompatActivity() {
                     } else {
                         // val resultMessage = task.exception?.message // This expression can also be used.
                         val resultLocalizedMessage = task.exception?.localizedMessage
-                        Snackbar.make(it, resultLocalizedMessage.toString(), 6000).show()
+                        Snackbar.make(it, "Failed to create an account.\n${resultLocalizedMessage.toString()}", 6000).show()
                         // Duration: 6000 ms or 6 seconds. We can also use "resultLocalizedMessage!!" to unwrap the value ( but to be used ONLY if we are 100% sure that resultLocalizedMessage is non null).
                     }
                 }
