@@ -157,10 +157,10 @@ class HomeActivity : AppCompatActivity() {
 //                    // TODO: Implement folder management
 //                }
 
-                var id = 1000 // Initializing the file id which will be used to store the file in the Realtime database. With id = 10, we have ids from 10 to 99; With id = 100, we have ids from 100 to 999; With id = 1000, we have ids from 1000 to 9999.
+                var id = 1001 // Initializing the file id which will be used to store the file in the Realtime database. With id = 11, we have ids from 11 to 99; With id = 101, we have ids from 101 to 999; With id = 1001, we have ids from 1001 to 9999.
                 for (item in items) { // List of file storage references. All the items (files) under fileStorageRoot.
 
-                    realtimeDbRef.child(realtimeDbRoot).child("id$id").setValue(item.name) // Writing file names gotten from Firebase cloud storage into Firebase Realtime database, with ids generated manually. Min: id1000, Max: id9999, Total: 9000 potential ids.
+                    realtimeDbRef.child(realtimeDbRoot).child("id$id").setValue(item.name) // Writing file names gotten from Firebase cloud storage into Firebase Realtime database, with ids generated manually. Min: id1001, Max: id9999, Total: 8999 potential ids.
 
 //                    fileDetailList.add(FileDetail("id$id", item.name))
 //                    println("FileDetailList INSIDE listAll(): $fileDetailList")
