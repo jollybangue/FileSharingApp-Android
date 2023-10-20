@@ -1,3 +1,10 @@
+//
+//  FileDetailAdapter.kt
+//  FileSharingApp
+//
+//  Created by Jolly BANGUE on 2023-09-29.
+//
+
 package com.rexmicrosystems.filesharingapp
 
 import android.view.LayoutInflater
@@ -38,7 +45,7 @@ class FileDetailAdapter(private var fileList: List<FileDetail>): RecyclerView.Ad
             // VERY IMPORTANT NOTE: In "file_item.xml", android:foreground="?selectableItemBackground" allows to highlight the selected item.
             // Do I need  android:clickable="true" and android:focusable="true" ??? It seems NO!!!.
 
-            //notifyItemChanged(position) // TODO: Check if it is necessary...
+            //notifyItemChanged(position) // TODO: Check if this expression is necessary...
 
             // Creating fileActionsDialog which will be shown when the user clicks on a file. NOTE: Unable to define fileActionsDialog outside .setOnClickListener{}...
             val fileActionsDialog = MaterialAlertDialogBuilder(it.context)

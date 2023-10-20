@@ -4,14 +4,6 @@
 //
 //  Created by Jolly BANGUE on 2023-09-28.
 //
-// Description: A native Android app that enables users to upload, download, delete, and share files using Firebase features (Firebase Authentication and Firebase Cloud Storage).
-
-//TODO: Improve Login and Register Firebase Authentication implementation.
-//  For example, when a user account is deleted in the Firebase Web Console,
-//  the user stays connected on the local device and the Home activity is automatically loaded when we launch the app (the problem seems to be fixed when we uninstall the app...).
-// Also, try to use fragments to navigate indefinitely between Login and Register screens (in that way there will be no need the destroy the previous activity while moving to a new activity).
-
-
 
 package com.rexmicrosystems.filesharingapp
 
@@ -89,8 +81,6 @@ class LoginActivity : AppCompatActivity() {
 
     public override fun onStart() {
         super.onStart()
-
-        // TODO: Check if the lines below can be implemented in the onCreate() function instead
         // When initializing this Activity (LoginActivity), checks to see if a user is currently signed in.
         if (appAuth.currentUser != null) {
             // Checks if user is signed in (non-null) and updates UI accordingly.

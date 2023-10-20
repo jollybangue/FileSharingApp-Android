@@ -1,3 +1,10 @@
+//
+//  RegisterActivity.kt
+//  FileSharingApp
+//
+//  Created by Jolly BANGUE on 2023-09-28.
+//
+
 package com.rexmicrosystems.filesharingapp
 
 import android.annotation.SuppressLint

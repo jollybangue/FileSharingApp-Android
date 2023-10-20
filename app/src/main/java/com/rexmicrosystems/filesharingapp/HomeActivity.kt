@@ -1,3 +1,11 @@
+//
+//  HomeActivity.kt
+//  FileSharingApp
+//
+//  Created by Jolly BANGUE on 2023-09-28.
+//
+// Description: A file management Android app that allows users to upload, download, open, delete, and share files stored in cloud using Firebase features (Firebase Authentication, Firebase Cloud Storage and Firebase Realtime Database).
+
 package com.rexmicrosystems.filesharingapp
 
 import android.content.Intent
@@ -20,15 +28,6 @@ import com.google.firebase.storage.ktx.storage
 import com.google.firebase.storage.ktx.component1
 import com.google.firebase.storage.ktx.component2
 import java.util.TreeMap
-
-// TODO: Improve alert dialog management
-// TODO: Generate app documentation
-// TODO: URGENT - When a new iOS/Android user log in, the home screen blinks/flashes (because of the refreshment of the Realtime Database), the screen (recycler view) is entirely refreshed and the list is repositioned at the top (the top files appear...)
-// TODO: Sort the data got from the realtime database
-// TODO: Implement "File Details", "Delete File", "Upload File", "Download File", "Open File", "Share"
-// TODO: Implement Swipe to delete file
-// TODO: Check if the error while connecting to the Firebase cloud storage is handled.
-
 
 
 class HomeActivity : AppCompatActivity() {
@@ -79,16 +78,6 @@ class HomeActivity : AppCompatActivity() {
 
         textViewCurrentUser.text = userEmail // Setting the text of the Home label with the email of the currently logged user.
 
-        // Data source, containing a list of FileDetail objects, which will be displayed in the recycler view.
-//        fileDetailList = mutableListOf(
-//            FileDetail("id001", "Jolly.rex"),
-//            FileDetail("id002", "BBB.pdf"),
-//            FileDetail("id003", "Video of my soccer goal.mp4"),
-//            FileDetail("id004", "Early bird.jpeg"),
-//            FileDetail("id007", "Linkin Park - What I've Done.mp3"),
-//            FileDetail("00100", "Metal Gear Solid V - The Phantom Pain.ps4")
-//        )
-
         recyclerViewFileList.layoutManager = LinearLayoutManager(this)
         recyclerViewFileList.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL)) // Adding a divider to separate the items shown in the Recycler view.
 
@@ -99,7 +88,7 @@ class HomeActivity : AppCompatActivity() {
 
         buttonUpload.setOnClickListener {
             // TODO: Upload feature to be implemented...
-            val uploadActionItem = arrayOf("Upload from Gallery", "Upload from Another Location") // TODO: Check if it is better to just use buttons instead, NOT this list of 2 elements.
+            val uploadActionItem = arrayOf("Upload from Gallery", "Upload from Another Location")
 
             val uploadDialog = MaterialAlertDialogBuilder(this)
             uploadDialog
@@ -116,7 +105,7 @@ class HomeActivity : AppCompatActivity() {
                     println("Content of dialog local variable: $dialog")
                     println("Content of i local variable: $i")
                 }
-                .show() // It seems that there is no need to invoke create() when show() will be invoked right after (because show() = create() + show()).
+                .show()
         }
 
         buttonSignOut.setOnClickListener {
@@ -136,7 +125,7 @@ class HomeActivity : AppCompatActivity() {
                         Toast.makeText(this, "User $userEmail successfully logged out", Toast.LENGTH_LONG).show()
                     }
                 }
-                .show() // Showing the Sign Out Dialog
+                .show() // Create and Show the Sign Out Dialog
         }
     }
 
@@ -154,7 +143,7 @@ class HomeActivity : AppCompatActivity() {
 //                for (prefix in prefixes) { // List of folder storage references.
 //                    // All the prefixes (folders) under fileStorageRoot.
 //                    // We may call listAll() recursively on them.
-//                    // TODO: Implement folder management
+//                    // TODO: Implement folder management...
 //                }
 
                 var id = 1001 // Initializing the file id which will be used to store the file in the Realtime database. With id = 11, we have ids from 11 to 99; With id = 101, we have ids from 101 to 999; With id = 1001, we have ids from 1001 to 9999.
@@ -162,19 +151,13 @@ class HomeActivity : AppCompatActivity() {
 
                     realtimeDbRef.child(realtimeDbRoot).child("id$id").setValue(item.name) // Writing file names gotten from Firebase cloud storage into Firebase Realtime database, with ids generated manually. Min: id1001, Max: id9999, Total: 8999 potential ids.
 
-//                    fileDetailList.add(FileDetail("id$id", item.name))
-//                    println("FileDetailList INSIDE listAll(): $fileDetailList")
-
                     id += 1 // Incrementing the id.
                 }
-//                recyclerViewFileList.adapter = FileDetailAdapter(fileDetailList)
-
             }
             .addOnFailureListener {
                 showAlertDialog("Error while getting the list of the files stored in the cloud", "Details: ${it.message}")
             }
     }
-
 
     /**
      * This function allows the app to get and observe in realtime, the name of the files stored in
@@ -182,7 +165,7 @@ class HomeActivity : AppCompatActivity() {
      */
     private fun getFileNamesFromRealtimeDB() {
 
-        // Defining listener which will be passed to addValueEventListener() below
+        // Defining the listener which will be passed to addValueEventListener() below.
         val realtimeFileListListener = object : ValueEventListener {
             /**
              * This method will be called with a snapshot of the data at this location. It will also be called
@@ -208,8 +191,8 @@ class HomeActivity : AppCompatActivity() {
                     }
 
                 }
-                // TODO: Temporary solution for the version 1.0 of the app (since the Realtime database management system is not yet optimized): Reload the recyclerViewFileList ONLY if the sortedMap IS DIFFERENT from the current fileDetailList. An IF condition seems to be used...
-                // TODO: See how to prevent the recyclerViewFileList from reinitializing its file position when there is any new event from the realtime database (new user connected, new file uploaded, file deleted, ...).
+                // TODO: Realtime database management optimization...
+
                 recyclerViewFileList.adapter = FileDetailAdapter(fileDetailList) // Passing fileDetailList to the recycler view via the adapter. NOTE: fileDetailList is NOT accessible outside onDataChange() function.
             }
 
@@ -225,8 +208,7 @@ class HomeActivity : AppCompatActivity() {
             }
 
         }
-
-        // Adding a listener to check any data change which could occur at the realtime database root of this app.
+        // Adding the listener "realtimeFileListListener" to check any data change which could occur in the realtime database root of this app.
         realtimeDbRef.child(realtimeDbRoot).addValueEventListener(realtimeFileListListener)
     }
 
