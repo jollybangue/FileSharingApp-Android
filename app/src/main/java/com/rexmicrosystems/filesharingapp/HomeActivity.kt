@@ -121,6 +121,7 @@ class HomeActivity : AppCompatActivity() {
                     appAuth.signOut() // TODO: Add try...catch
                     Intent(this, LoginActivity::class.java).also {
                         startActivity(it) // Start LoginActivity
+                        // TODO: Remove the Authentication listener.
                         finish() // Destroys the Home activity. In that way, when the back button will be pushed after Signing out we won't be able to back to the Home screen.
                         Toast.makeText(this, "User $userEmail successfully logged out", Toast.LENGTH_LONG).show()
                     }
@@ -138,24 +139,32 @@ class HomeActivity : AppCompatActivity() {
         myStorageRef.child(fileStorageRoot).listAll()
             .addOnSuccessListener { (items, prefixes) ->
 
-                realtimeDbRef.child(realtimeDbRoot).removeValue() // Deletes all the current values in realtime database app folder to avoid duplication issues.
-
-//                for (prefix in prefixes) { // List of folder storage references.
+                realtimeDbRef.child(realtimeDbRoot).get().addOnSuccessListener {
+                    println("INITIALIZATION: Number of files in Firebase Cloud Storage: ${items.count()}")
+                    println("INITIALIZATION: Number of files in Realtime Database: ${it.childrenCount}")
+                    if (it.childrenCount.toInt() != items.count()) {
+                        // Reinitialization and update of the Realtime Database.
+                        realtimeDbRef.child(realtimeDbRoot).removeValue() // Deletes all the current values in realtime database app folder to avoid duplication issues.
+//                      for (prefix in prefixes) { // List of folder storage references.
 //                    // All the prefixes (folders) under fileStorageRoot.
 //                    // We may call listAll() recursively on them.
 //                    // TODO: Implement folder management...
-//                }
+//                      }
 
-                var id = 1001 // Initializing the file id which will be used to store the file in the Realtime database. With id = 11, we have ids from 11 to 99; With id = 101, we have ids from 101 to 999; With id = 1001, we have ids from 1001 to 9999.
-                for (item in items) { // List of file storage references. All the items (files) under fileStorageRoot.
+                        var id = 1001 // Initializing the file id which will be used to store the file in the Realtime database. With id = 11, we have ids from 11 to 99; With id = 101, we have ids from 101 to 999; With id = 1001, we have ids from 1001 to 9999.
+                        for (item in items) { // List of file storage references. All the items (files) under fileStorageRoot.
 
-                    realtimeDbRef.child(realtimeDbRoot).child("id$id").setValue(item.name) // Writing file names gotten from Firebase cloud storage into Firebase Realtime database, with ids generated manually. Min: id1001, Max: id9999, Total: 8999 potential ids.
+                            realtimeDbRef.child(realtimeDbRoot).child("id$id").setValue(item.name) // Writing file names gotten from Firebase cloud storage into Firebase Realtime database, with ids generated manually. Min: id1001, Max: id9999, Total: 8999 potential ids.
 
-                    id += 1 // Incrementing the id.
+                            id += 1 // Incrementing the id.
+                        }
+                    } else {
+                        println("numberOfilesInCloudStorage is equal to numberOfFilesInRealtimeDB. No need to reinitialize and update the Realtime Database...")
+                    }
                 }
             }
             .addOnFailureListener {
-                showAlertDialog("Error while getting the list of the files stored in the cloud", "Details: ${it.message}")
+                showAlertDialog("Cloud Storage Error", "${it.message}")
             }
     }
 
@@ -204,7 +213,7 @@ class HomeActivity : AppCompatActivity() {
              * @param error A description of the error that occurred
              */
             override fun onCancelled(error: DatabaseError) {
-                showAlertDialog("Realtime Database Error", "Details: ${error.message}")
+                showAlertDialog("Realtime Database Error", "${error.message}")
             }
 
         }
