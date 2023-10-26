@@ -2,7 +2,7 @@
 //  HomeActivity.kt
 //  FileSharingApp
 //
-//  Created by Jolly BANGUE on 2023-09-28.
+//  Created by Jolly Bangue on 2023-09-28.
 //
 // Description: A file management Android app that allows users to upload, download, open, delete, and share files stored in cloud using Firebase features (Firebase Authentication, Firebase Cloud Storage and Firebase Realtime Database).
 
@@ -15,7 +15,6 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.ActionBar
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -42,6 +41,12 @@ class HomeActivity : AppCompatActivity() {
         var userEmail: String? = null // userEmail = appAuth.currentUser?.email when the user account is successfully created (see RegisterActivity).
         // As a rule, I decided that "userEmail" and all the companion fields (except "isNewUser") will be assigned a value ONLY from LoginActivity and RegisterActivity, and so NEVER from HomeActivity.
 
+        val myStorageRef = Firebase.storage.reference // Pointing to the Firebase Cloud Storage root folder. iOS Swift: private let myStorageRef = Storage.storage().reference()
+        const val fileStorageRoot = "FileSharingApp" // Root folder of the app data in the Firebase Cloud Storage.
+
+        private val realtimeDbRef = Firebase.database.reference // Pointing to the Firebase Realtime Database root node (It is the Realtime database reference). iOS Swift: private let realtimeDbRef = Database.database().reference()
+        private const val realtimeDbRoot = "FileSharingApp" // Root folder of the app data in the Realtime database.
+
         fun showAlertDialog (title: String, message: String, context: Context) {
             val myAlertDialog = MaterialAlertDialogBuilder(context)
             myAlertDialog
@@ -51,7 +56,6 @@ class HomeActivity : AppCompatActivity() {
                 .setNegativeButton("OK") {_, _ ->}
                 .show()
         }
-
     }
 
     private lateinit var textViewCurrentUser: TextView
@@ -60,13 +64,6 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var buttonSignOut: Button
 
     var fileDetailList: MutableList<FileDetail> = mutableListOf() // NOTE: Difference between array and mutable list: An array has a fixed size, whereas the size of a mutable list can increase or decrease dynamically.
-
-
-    private val myStorageRef = Firebase.storage.reference // Pointing to the Firebase Cloud Storage root folder. iOS Swift: private let myStorageRef = Storage.storage().reference()
-    private val fileStorageRoot = "FileSharingApp" // Root folder of the app data in the Firebase Cloud Storage.
-
-    private val realtimeDbRef = Firebase.database.reference // Pointing to the Firebase Realtime Database root node (It is the Realtime database reference). iOS Swift: private let realtimeDbRef = Database.database().reference()
-    private val realtimeDbRoot = "FileSharingApp" // Root folder of the app data in the Realtime database.
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -91,16 +88,13 @@ class HomeActivity : AppCompatActivity() {
         buttonUpload = findViewById(R.id.buttonUpload)
         buttonSignOut = findViewById(R.id.buttonSignOut)
 
-
         textViewCurrentUser.text = userEmail // Setting the text of the Home label with the email of the currently logged user.
 
         recyclerViewFileList.layoutManager = LinearLayoutManager(this)
         recyclerViewFileList.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL)) // Adding a divider to separate the items shown in the Recycler view.
 
-
         copyDataFromStorageToRealtimeDB() // Getting the list of files available in the Firebase Cloud Storage and storing them in the Realtime Database.
         getFileNamesFromRealtimeDB() // Get and observe the file list stored in the Realtime Database.
-
 
         buttonUpload.setOnClickListener {
             // TODO: Upload feature to be implemented...
@@ -145,7 +139,6 @@ class HomeActivity : AppCompatActivity() {
                 .show() // Create and Show the Sign Out Dialog
         }
     }
-
 
     /**
      * This function gets the list of files stored in the Firebase cloud storage and save it into
@@ -229,13 +222,12 @@ class HomeActivity : AppCompatActivity() {
              * @param error A description of the error that occurred
              */
             override fun onCancelled(error: DatabaseError) {
-                showAlertDialog("Realtime Database Error", "${error.message}", this@HomeActivity)
+                showAlertDialog("Realtime Database Error", error.message, this@HomeActivity)
             }
 
         }
         // Adding the listener "realtimeFileListListener" to check any data change which could occur in the realtime database root of this app.
         realtimeDbRef.child(realtimeDbRoot).addValueEventListener(realtimeFileListListener)
     }
-
 
 }

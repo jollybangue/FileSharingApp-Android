@@ -2,7 +2,7 @@
 //  FileDetailAdapter.kt
 //  FileSharingApp
 //
-//  Created by Jolly BANGUE on 2023-09-29.
+//  Created by Jolly Bangue on 2023-09-29.
 //
 
 package com.rexmicrosystems.filesharingapp
@@ -14,8 +14,9 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.rexmicrosystems.filesharingapp.HomeActivity.Companion.fileStorageRoot
+import com.rexmicrosystems.filesharingapp.HomeActivity.Companion.myStorageRef
 import com.rexmicrosystems.filesharingapp.HomeActivity.Companion.showAlertDialog // import done to be able to call the static method showAlertDialog
-
 
 class FileDetailAdapter(private var fileList: List<FileDetail>): RecyclerView.Adapter<FileDetailAdapter.FileDetailViewHolder>() {
     // fileList is the parameter of the constructor
@@ -57,7 +58,7 @@ class FileDetailAdapter(private var fileList: List<FileDetail>): RecyclerView.Ad
 
                 .setPositiveButton("SHARE") {_, _ ->
                     // TODO: Implement SHARE file action
-                    Toast.makeText(it.context, "SHARE selected", Toast.LENGTH_SHORT).show()
+                    //Toast.makeText(it.context, "SHARE selected", Toast.LENGTH_SHORT).show()
                     showAlertDialog(fileSelectedName, "Link of the file successfully copied in the clipboard.", it.context)
                 }
 
@@ -66,8 +67,22 @@ class FileDetailAdapter(private var fileList: List<FileDetail>): RecyclerView.Ad
                 }
 
                 .setNeutralButton("FILE DETAILS") {_, _ ->
-                    // TODO: Show file details
-                    Toast.makeText(it.context, "FILE DETAILS selected", Toast.LENGTH_SHORT).show()
+                    // Getting the file (located in Cloud Storage) metadata
+                    myStorageRef.child(fileStorageRoot).child(fileSelectedName).metadata.addOnSuccessListener { metadata ->
+                        var name = metadata.name
+                        var fileKind = metadata.contentType
+                        var fileSize = metadata.sizeBytes
+                        var fileTimeCreated = metadata.creationTimeMillis
+                        var fileTimeModified = metadata.updatedTimeMillis
+                        // TODO: Format the values of the metadata
+
+                        println("Content of metadata: $metadata")
+                        showAlertDialog("File Details", "Name: $name\n\nKind: $fileKind file\n\nSize: $fileSize bytes\n\nCreated: $fileTimeCreated\n\nModified: $fileTimeModified", it.context)
+                    }
+                        .addOnFailureListener { error ->
+                            showAlertDialog("Metadata Error", error.localizedMessage, it.context)
+                        }
+
                 }
 
                 .setItems(fileAction) { dialog, i ->
