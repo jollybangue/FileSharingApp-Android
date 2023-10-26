@@ -8,12 +8,14 @@
 
 package com.rexmicrosystems.filesharingapp
 
+import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.ActionBar
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -39,6 +41,17 @@ class HomeActivity : AppCompatActivity() {
         var isNewUser: Boolean = false // isNewUser is set to true when a new user account is successfully created in RegisterActivity.
         var userEmail: String? = null // userEmail = appAuth.currentUser?.email when the user account is successfully created (see RegisterActivity).
         // As a rule, I decided that "userEmail" and all the companion fields (except "isNewUser") will be assigned a value ONLY from LoginActivity and RegisterActivity, and so NEVER from HomeActivity.
+
+        fun showAlertDialog (title: String, message: String, context: Context) {
+            val myAlertDialog = MaterialAlertDialogBuilder(context)
+            myAlertDialog
+                .setTitle(title)
+                .setMessage(message)
+                .setCancelable(false)
+                .setNegativeButton("OK") {_, _ ->}
+                .show()
+        }
+
     }
 
     private lateinit var textViewCurrentUser: TextView
@@ -58,6 +71,9 @@ class HomeActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
+
+        // Setting the title to be displayed in the ActionBar of the activity
+        title = "Files in the Cloud" // Changed the default theme from Theme.Material3.DayNight.NoActionBar to "Theme.Material3.DayNight" To be able to see the Title. By default it is the name of the App (as defined in strings.xml) which is displayed in the ActionBar.
 
         // Checking if the app should show a welcome AlertDialog to the newly created user.
         if (isNewUser) {
@@ -164,7 +180,7 @@ class HomeActivity : AppCompatActivity() {
                 }
             }
             .addOnFailureListener {
-                showAlertDialog("Cloud Storage Error", "${it.message}")
+                showAlertDialog("Cloud Storage Error", "${it.message}", this)
             }
     }
 
@@ -213,7 +229,7 @@ class HomeActivity : AppCompatActivity() {
              * @param error A description of the error that occurred
              */
             override fun onCancelled(error: DatabaseError) {
-                showAlertDialog("Realtime Database Error", "${error.message}")
+                showAlertDialog("Realtime Database Error", "${error.message}", this@HomeActivity)
             }
 
         }
@@ -221,13 +237,5 @@ class HomeActivity : AppCompatActivity() {
         realtimeDbRef.child(realtimeDbRoot).addValueEventListener(realtimeFileListListener)
     }
 
-    fun showAlertDialog (title: String, message: String) {
-        val myAlertDialog = MaterialAlertDialogBuilder(this)
-        myAlertDialog
-            .setTitle(title)
-            .setMessage(message)
-            .setCancelable(false)
-            .setNegativeButton("OK") {_, _ ->}
-            .show()
-    }
+
 }

@@ -14,6 +14,8 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.rexmicrosystems.filesharingapp.HomeActivity.Companion.showAlertDialog // import done to be able to call the static method showAlertDialog
+
 
 class FileDetailAdapter(private var fileList: List<FileDetail>): RecyclerView.Adapter<FileDetailAdapter.FileDetailViewHolder>() {
     // fileList is the parameter of the constructor
@@ -56,11 +58,11 @@ class FileDetailAdapter(private var fileList: List<FileDetail>): RecyclerView.Ad
                 .setPositiveButton("SHARE") {_, _ ->
                     // TODO: Implement SHARE file action
                     Toast.makeText(it.context, "SHARE selected", Toast.LENGTH_SHORT).show()
+                    showAlertDialog(fileSelectedName, "Link of the file successfully copied in the clipboard.", it.context)
                 }
 
                 .setNegativeButton("CANCEL") {_, _ ->
-                    // TODO: Implement CANCEL file action
-                    Toast.makeText(it.context, "CANCEL selected", Toast.LENGTH_SHORT).show()
+                    // No action needed here. Just dismiss the Alert Dialog
                 }
 
                 .setNeutralButton("FILE DETAILS") {_, _ ->
