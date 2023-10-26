@@ -17,6 +17,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rexmicrosystems.filesharingapp.HomeActivity.Companion.fileStorageRoot
 import com.rexmicrosystems.filesharingapp.HomeActivity.Companion.myStorageRef
 import com.rexmicrosystems.filesharingapp.HomeActivity.Companion.showAlertDialog // import done to be able to call the static method showAlertDialog
+import java.text.DecimalFormat
+import java.util.Date
 
 class FileDetailAdapter(private var fileList: List<FileDetail>): RecyclerView.Adapter<FileDetailAdapter.FileDetailViewHolder>() {
     // fileList is the parameter of the constructor
@@ -69,15 +71,17 @@ class FileDetailAdapter(private var fileList: List<FileDetail>): RecyclerView.Ad
                 .setNeutralButton("FILE DETAILS") {_, _ ->
                     // Getting the file (located in Cloud Storage) metadata
                     myStorageRef.child(fileStorageRoot).child(fileSelectedName).metadata.addOnSuccessListener { metadata ->
-                        var name = metadata.name
-                        var fileKind = metadata.contentType
-                        var fileSize = metadata.sizeBytes
-                        var fileTimeCreated = metadata.creationTimeMillis
-                        var fileTimeModified = metadata.updatedTimeMillis
+                        val name = metadata.name
+                        val fileKind = metadata.contentType
+                        val fileSize = DecimalFormat("#,###").format(metadata.sizeBytes) // metadata.sizeBytes is the size (in bytes) of the selected file. DecimalFormat with pattern "#,###" adds comma separators in the value of the file size.
+                        val fileDateCreated = Date(metadata.creationTimeMillis) // Converting the Timestamp metadata.creationTimeMillis to Date format
+                        val fileDateModified = Date(metadata.updatedTimeMillis)
+
+                        //var dateFormat = DateFormat.format(fileTimeCreated)
                         // TODO: Format the values of the metadata
 
                         println("Content of metadata: $metadata")
-                        showAlertDialog("File Details", "Name: $name\n\nKind: $fileKind file\n\nSize: $fileSize bytes\n\nCreated: $fileTimeCreated\n\nModified: $fileTimeModified", it.context)
+                        showAlertDialog("File Details", "Name: $name\n\nKind: $fileKind file\n\nSize: $fileSize bytes\n\nCreated: $fileDateCreated\n\nModified: $fileDateModified", it.context)
                     }
                         .addOnFailureListener { error ->
                             showAlertDialog("Metadata Error", error.localizedMessage, it.context)
