@@ -8,7 +8,9 @@
 
 package com.rexmicrosystems.filesharingapp
 
+import android.annotation.SuppressLint
 import android.app.Application
+import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -28,6 +30,7 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import com.google.firebase.storage.ktx.component1
 import com.google.firebase.storage.ktx.component2
+import java.lang.ref.WeakReference
 import java.util.TreeMap
 
 
@@ -37,17 +40,13 @@ class HomeActivity : AppCompatActivity() {
         // We cannot create static variables in Kotlin. Instead, we should use a companion object.
         // All the fields of a companion object are static and therefore accessible from everywhere in the app.
 
-        private lateinit var homeApp: Application
-        //lateinit var myContext: Context
-
+        @SuppressLint("StaticFieldLeak")
+        lateinit var myContext: Context
         // TODO: Solve the memory leak warning
-        private lateinit var myIntance: HomeActivity
-
-
+        //private lateinit var myIntance: WeakReference<HomeActivity>
 //        fun setContext (theContext: Context) {
 //            myContext = theContext
 //        }
-
 
         lateinit var appAuth: FirebaseAuth
         var isNewUser: Boolean = false // isNewUser is set to true when a new user account is successfully created in RegisterActivity.
@@ -61,7 +60,7 @@ class HomeActivity : AppCompatActivity() {
         private const val realtimeDbRoot = "FileSharingApp" // Root folder of the app data in the Realtime database.
 
         fun showAlertDialog (title: String, message: String) {
-            val myAlertDialog = MaterialAlertDialogBuilder(myIntance)
+            val myAlertDialog = MaterialAlertDialogBuilder(myContext)
             myAlertDialog
                 .setTitle(title)
                 .setMessage(message)
@@ -119,11 +118,10 @@ class HomeActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
-        //myContext = applicationContext // Storing the application context in the static variable myContext. WARNING: Do not place Android context classes in static fields; this is a memory leak. We get the same warning using a set() function.
+        myContext = this // Storing the application context in the static variable myContext. WARNING: Do not place Android context classes in static fields; this is a memory leak. We get the same warning using a set() function.
         //saveCurrentApp(this.application) // getApplication() Catching the application that owns this activity and saving it into the static variable homeApp.
         //setContext(this)
-        //myContext = this
-        myIntance = this
+        //myIntance = WeakReference(this)
 
         // Setting the title to be displayed in the ActionBar of the activity
         title = "Files in the Cloud" // Changed the default theme from Theme.Material3.DayNight.NoActionBar to "Theme.Material3.DayNight" To be able to see the Title. By default it is the name of the App (as defined in strings.xml) which is displayed in the ActionBar.
@@ -138,8 +136,6 @@ class HomeActivity : AppCompatActivity() {
                 .show()
             isNewUser = false // Once created the user is no longer new...
         }
-
-
 
         textViewCurrentUser = findViewById(R.id.textViewCurrentUser)
         recyclerViewFileList = findViewById(R.id.recyclerViewFileList)
