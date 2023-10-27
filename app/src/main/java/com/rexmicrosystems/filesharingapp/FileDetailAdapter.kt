@@ -7,11 +7,14 @@
 
 package com.rexmicrosystems.filesharingapp
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rexmicrosystems.filesharingapp.HomeActivity.Companion.fileStorageRoot
@@ -59,9 +62,17 @@ class FileDetailAdapter(private var fileList: List<FileDetail>): RecyclerView.Ad
                 .setCancelable(false) // The user should select an item or a button to dismiss the alert dialog.
 
                 .setPositiveButton("SHARE") {_, _ ->
-                    // TODO: Implement SHARE file action
-                    //Toast.makeText(it.context, "SHARE selected", Toast.LENGTH_SHORT).show()
-                    showAlertDialog(fileSelectedName, "Link of the file successfully copied in the clipboard.", it.context)
+                    myStorageRef.child(fileStorageRoot).child(fileSelectedName).downloadUrl.addOnSuccessListener { myUri ->
+                        val myClipboard = getSystemService(it.context, ClipboardManager::class.java) // Getting the system clipboard
+                        val myClipData = ClipData.newUri(it.context.contentResolver, "URI", myUri) // Converting the URL contained in myUri as a ClipData
+                        myClipboard?.setPrimaryClip(myClipData) // Putting the clip data into the clipboard.
+
+                        showAlertDialog(fileSelectedName, "File link copied to clipboard", it.context)
+                        println("File link to share: $myUri")
+                    }
+                        .addOnFailureListener { error ->
+                            showAlertDialog("Share Error", error.localizedMessage!!, it.context)
+                        }
                 }
 
                 .setNegativeButton("CANCEL") {_, _ ->
@@ -76,17 +87,11 @@ class FileDetailAdapter(private var fileList: List<FileDetail>): RecyclerView.Ad
                         val fileSize = DecimalFormat("#,###").format(metadata.sizeBytes) // metadata.sizeBytes is the size (in bytes) of the selected file. DecimalFormat with pattern "#,###" adds comma separators in the value of the file size.
                         val fileDateCreated = Date(metadata.creationTimeMillis) // Converting the Timestamp metadata.creationTimeMillis to Date format
                         val fileDateModified = Date(metadata.updatedTimeMillis)
-
-                        //var dateFormat = DateFormat.format(fileTimeCreated)
-                        // TODO: Format the values of the metadata
-
-                        println("Content of metadata: $metadata")
                         showAlertDialog("File Details", "Name: $name\n\nKind: $fileKind file\n\nSize: $fileSize bytes\n\nCreated: $fileDateCreated\n\nModified: $fileDateModified", it.context)
                     }
-                        .addOnFailureListener { error ->
-                            showAlertDialog("Metadata Error", error.localizedMessage, it.context)
-                        }
-
+                    .addOnFailureListener { error ->
+                        showAlertDialog("Metadata Error", error.localizedMessage!!, it.context)
+                    }
                 }
 
                 .setItems(fileAction) { dialog, i ->
