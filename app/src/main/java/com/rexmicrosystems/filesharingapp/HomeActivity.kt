@@ -8,7 +8,7 @@
 
 package com.rexmicrosystems.filesharingapp
 
-import android.content.Context
+import android.app.Application
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -36,6 +36,19 @@ class HomeActivity : AppCompatActivity() {
     companion object {
         // We cannot create static variables in Kotlin. Instead, we should use a companion object.
         // All the fields of a companion object are static and therefore accessible from everywhere in the app.
+
+        private lateinit var homeApp: Application
+        //lateinit var myContext: Context
+
+        // TODO: Solve the memory leak warning
+        private lateinit var myIntance: HomeActivity
+
+
+//        fun setContext (theContext: Context) {
+//            myContext = theContext
+//        }
+
+
         lateinit var appAuth: FirebaseAuth
         var isNewUser: Boolean = false // isNewUser is set to true when a new user account is successfully created in RegisterActivity.
         var userEmail: String? = null // userEmail = appAuth.currentUser?.email when the user account is successfully created (see RegisterActivity).
@@ -47,8 +60,8 @@ class HomeActivity : AppCompatActivity() {
         private val realtimeDbRef = Firebase.database.reference // Pointing to the Firebase Realtime Database root node (It is the Realtime database reference). iOS Swift: private let realtimeDbRef = Database.database().reference()
         private const val realtimeDbRoot = "FileSharingApp" // Root folder of the app data in the Realtime database.
 
-        fun showAlertDialog (title: String, message: String, context: Context) {
-            val myAlertDialog = MaterialAlertDialogBuilder(context)
+        fun showAlertDialog (title: String, message: String) {
+            val myAlertDialog = MaterialAlertDialogBuilder(myIntance)
             myAlertDialog
                 .setTitle(title)
                 .setMessage(message)
@@ -56,6 +69,44 @@ class HomeActivity : AppCompatActivity() {
                 .setNegativeButton("OK") {_, _ ->}
                 .show()
         }
+
+        /**
+         * This function gets the list of files stored in the Firebase cloud storage and save it into
+         * the Realtime database.
+         */
+        fun copyDataFromStorageToRealtimeDB() {
+            myStorageRef.child(fileStorageRoot).listAll()
+                .addOnSuccessListener { (items, prefixes) ->
+
+                    realtimeDbRef.child(realtimeDbRoot).get().addOnSuccessListener {
+                        println("INITIALIZATION: Number of files in Firebase Cloud Storage: ${items.count()}")
+                        println("INITIALIZATION: Number of files in Realtime Database: ${it.childrenCount}")
+                        if (it.childrenCount.toInt() != items.count()) {
+                            // Reinitialization and update of the Realtime Database.
+                            realtimeDbRef.child(realtimeDbRoot).removeValue() // Deletes all the current values in realtime database app folder to avoid duplication issues.
+//                      for (prefix in prefixes) { // List of folder storage references.
+//                    // All the prefixes (folders) under fileStorageRoot.
+//                    // We may call listAll() recursively on them.
+//                    // TODO: Implement folder management...
+//                      }
+
+                            var id = 1001 // Initializing the file id which will be used to store the file in the Realtime database. With id = 11, we have ids from 11 to 99; With id = 101, we have ids from 101 to 999; With id = 1001, we have ids from 1001 to 9999.
+                            for (item in items) { // List of file storage references. All the items (files) under fileStorageRoot.
+
+                                realtimeDbRef.child(realtimeDbRoot).child("id$id").setValue(item.name) // Writing file names gotten from Firebase cloud storage into Firebase Realtime database, with ids generated manually. Min: id1001, Max: id9999, Total: 8999 potential ids.
+
+                                id += 1 // Incrementing the id.
+                            }
+                        } else {
+                            println("numberOfilesInCloudStorage is equal to numberOfFilesInRealtimeDB. No need to reinitialize and update the Realtime Database...")
+                        }
+                    }
+                }
+                .addOnFailureListener {
+                    showAlertDialog("Cloud Storage Error", "${it.message}")
+                }
+        }
+
     }
 
     private lateinit var textViewCurrentUser: TextView
@@ -68,6 +119,11 @@ class HomeActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
+        //myContext = applicationContext // Storing the application context in the static variable myContext. WARNING: Do not place Android context classes in static fields; this is a memory leak. We get the same warning using a set() function.
+        //saveCurrentApp(this.application) // getApplication() Catching the application that owns this activity and saving it into the static variable homeApp.
+        //setContext(this)
+        //myContext = this
+        myIntance = this
 
         // Setting the title to be displayed in the ActionBar of the activity
         title = "Files in the Cloud" // Changed the default theme from Theme.Material3.DayNight.NoActionBar to "Theme.Material3.DayNight" To be able to see the Title. By default it is the name of the App (as defined in strings.xml) which is displayed in the ActionBar.
@@ -82,6 +138,8 @@ class HomeActivity : AppCompatActivity() {
                 .show()
             isNewUser = false // Once created the user is no longer new...
         }
+
+
 
         textViewCurrentUser = findViewById(R.id.textViewCurrentUser)
         recyclerViewFileList = findViewById(R.id.recyclerViewFileList)
@@ -140,42 +198,7 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * This function gets the list of files stored in the Firebase cloud storage and save it into
-     * the Realtime database.
-     */
-    private fun copyDataFromStorageToRealtimeDB() {
-        myStorageRef.child(fileStorageRoot).listAll()
-            .addOnSuccessListener { (items, prefixes) ->
 
-                realtimeDbRef.child(realtimeDbRoot).get().addOnSuccessListener {
-                    println("INITIALIZATION: Number of files in Firebase Cloud Storage: ${items.count()}")
-                    println("INITIALIZATION: Number of files in Realtime Database: ${it.childrenCount}")
-                    if (it.childrenCount.toInt() != items.count()) {
-                        // Reinitialization and update of the Realtime Database.
-                        realtimeDbRef.child(realtimeDbRoot).removeValue() // Deletes all the current values in realtime database app folder to avoid duplication issues.
-//                      for (prefix in prefixes) { // List of folder storage references.
-//                    // All the prefixes (folders) under fileStorageRoot.
-//                    // We may call listAll() recursively on them.
-//                    // TODO: Implement folder management...
-//                      }
-
-                        var id = 1001 // Initializing the file id which will be used to store the file in the Realtime database. With id = 11, we have ids from 11 to 99; With id = 101, we have ids from 101 to 999; With id = 1001, we have ids from 1001 to 9999.
-                        for (item in items) { // List of file storage references. All the items (files) under fileStorageRoot.
-
-                            realtimeDbRef.child(realtimeDbRoot).child("id$id").setValue(item.name) // Writing file names gotten from Firebase cloud storage into Firebase Realtime database, with ids generated manually. Min: id1001, Max: id9999, Total: 8999 potential ids.
-
-                            id += 1 // Incrementing the id.
-                        }
-                    } else {
-                        println("numberOfilesInCloudStorage is equal to numberOfFilesInRealtimeDB. No need to reinitialize and update the Realtime Database...")
-                    }
-                }
-            }
-            .addOnFailureListener {
-                showAlertDialog("Cloud Storage Error", "${it.message}", this)
-            }
-    }
 
     /**
      * This function allows the app to get and observe in realtime, the name of the files stored in
@@ -222,7 +245,7 @@ class HomeActivity : AppCompatActivity() {
              * @param error A description of the error that occurred
              */
             override fun onCancelled(error: DatabaseError) {
-                showAlertDialog("Realtime Database Error", error.message, this@HomeActivity)
+                showAlertDialog("Realtime Database Error", error.message)
             }
 
         }

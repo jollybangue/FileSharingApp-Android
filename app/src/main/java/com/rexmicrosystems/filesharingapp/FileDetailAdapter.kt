@@ -17,6 +17,7 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.rexmicrosystems.filesharingapp.HomeActivity.Companion.copyDataFromStorageToRealtimeDB
 import com.rexmicrosystems.filesharingapp.HomeActivity.Companion.fileStorageRoot
 import com.rexmicrosystems.filesharingapp.HomeActivity.Companion.myStorageRef
 import com.rexmicrosystems.filesharingapp.HomeActivity.Companion.showAlertDialog // import done to be able to call the static method showAlertDialog
@@ -66,12 +67,11 @@ class FileDetailAdapter(private var fileList: List<FileDetail>): RecyclerView.Ad
                         val myClipboard = getSystemService(it.context, ClipboardManager::class.java) // Getting the system clipboard
                         val myClipData = ClipData.newUri(it.context.contentResolver, "URI", myUri) // Converting the URL contained in myUri as a ClipData
                         myClipboard?.setPrimaryClip(myClipData) // Putting the clip data into the clipboard.
-
-                        showAlertDialog(fileSelectedName, "File link copied to clipboard", it.context)
+                        showAlertDialog(fileSelectedName, "File link copied to clipboard")
                         println("File link to share: $myUri")
                     }
                         .addOnFailureListener { error ->
-                            showAlertDialog("Share Error", error.localizedMessage!!, it.context)
+                            showAlertDialog("Share Error", error.localizedMessage!!)
                         }
                 }
 
@@ -87,21 +87,66 @@ class FileDetailAdapter(private var fileList: List<FileDetail>): RecyclerView.Ad
                         val fileSize = DecimalFormat("#,###").format(metadata.sizeBytes) // metadata.sizeBytes is the size (in bytes) of the selected file. DecimalFormat with pattern "#,###" adds comma separators in the value of the file size.
                         val fileDateCreated = Date(metadata.creationTimeMillis) // Converting the Timestamp metadata.creationTimeMillis to Date format
                         val fileDateModified = Date(metadata.updatedTimeMillis)
-                        showAlertDialog("File Details", "Name: $name\n\nKind: $fileKind file\n\nSize: $fileSize bytes\n\nCreated: $fileDateCreated\n\nModified: $fileDateModified", it.context)
+                        showAlertDialog("File Details", "Name: $name\n\nKind: $fileKind file\n\nSize: $fileSize bytes\n\nCreated: $fileDateCreated\n\nModified: $fileDateModified")
                     }
                     .addOnFailureListener { error ->
-                        showAlertDialog("Metadata Error", error.localizedMessage!!, it.context)
+                        showAlertDialog("Metadata Error", error.localizedMessage!!)
                     }
                 }
 
-                .setItems(fileAction) { dialog, i ->
+                .setItems(fileAction) { _, i -> // (DialogInterface, Int)
                     Toast.makeText(it.context, "You selected \"${fileAction[i]}\" action", Toast.LENGTH_SHORT).show()
                     // TODO: Insert a Switch...Case control flow here. Each case corresponds to one file action (see content of array fileAction above.)
                     // Switch fileAction[i]
                     // Case "Open in Image View"
                     // Case "Open in Web View"...
-                    println("Content of dialog local variable: $dialog")
                     println("Content of i local variable: $i")
+                    when (fileAction[i]) {
+                        "Open in Image View" -> {
+
+                        }
+
+                        "Open in Web View" -> {
+
+                        }
+
+                        "Open with System" -> {
+
+                        }
+
+                        "Download in the Default App Folder" -> {
+
+                        }
+
+                        "Download in Specified Location" -> {
+
+                        }
+
+                        "Delete File" -> {
+                            val deleteFileConfirmationDialog = MaterialAlertDialogBuilder(it.context)
+                            deleteFileConfirmationDialog
+                                .setCancelable(false)
+                                .setTitle("Delete File")
+                                .setMessage("Do you want to permanently delete the file \"$fileSelectedName\" from the cloud?")
+                                .setNegativeButton("CANCEL") { jolly, bangue-> // DialogInterface!, Int
+                                    //Toast.makeText(it.context, "File deletion canceled", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(it.context, "jolly: $jolly, bangue: $bangue", Toast.LENGTH_SHORT).show()
+                                }
+                                .setPositiveButton("DELETE") { _, _ ->
+                                    myStorageRef.child(fileStorageRoot).child(fileSelectedName).delete().addOnSuccessListener { result ->
+                                        copyDataFromStorageToRealtimeDB()
+                                        showAlertDialog("File Deleted", "The file \"$fileSelectedName\" has been succesfully deleted from the cloud.")
+                                        println("Content of variable \"result\": $result")
+                                    }
+                                    .addOnFailureListener { error ->
+                                        showAlertDialog("File Deletion Error", error.localizedMessage!!)
+                                    }
+                                }
+                                .show()
+
+                        }
+
+                    }
                 }
                 .show()
         }
