@@ -53,6 +53,9 @@ class HomeActivity : AppCompatActivity() {
         private val realtimeDbRef = Firebase.database.reference // Pointing to the Firebase Realtime Database root node (It is the Realtime database reference). iOS Swift: private let realtimeDbRef = Database.database().reference()
         private const val realtimeDbRoot = "FileSharingApp" // Root folder of the app data in the Realtime database.
 
+        //val myIntent = Intent(myContext, ImageActivity::class.java)
+
+
         fun showAlertDialog(title: String, message: String) {
             val myAlertDialog = MaterialAlertDialogBuilder(myContext)
             myAlertDialog
@@ -115,7 +118,9 @@ class HomeActivity : AppCompatActivity() {
         myContext = this // Storing the application context in the static variable myContext. WARNING: Do not place Android context classes in static fields; this is a memory leak. We get the same warning using a set() function.
 
         // Setting the title to be displayed in the ActionBar of the activity
-        title = "Files in the Cloud" // Changed the default theme from Theme.Material3.DayNight.NoActionBar to "Theme.Material3.DayNight" To be able to see the Title. By default it is the name of the App (as defined in strings.xml) which is displayed in the ActionBar.
+        //title = "Files in the Cloud" // Changed the default theme from Theme.Material3.DayNight.NoActionBar to "Theme.Material3.DayNight" To be able to see the Title. By default it is the name of the App (as defined in strings.xml) which is displayed in the ActionBar.
+        supportActionBar?.title = "Files in the Cloud"
+
 
         // Checking if the app should show a welcome AlertDialog to the newly created user.
         if (isNewUser) {

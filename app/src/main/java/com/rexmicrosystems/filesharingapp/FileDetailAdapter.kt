@@ -5,10 +5,13 @@
 //  Created by Jolly Bangue on 2023-09-29.
 //
 
+// TODO: Set contentDescription attribute of the image in ImageActivity (activity_image.xml). I temporary set the property to "@string/app_name"
+
 package com.rexmicrosystems.filesharingapp
 
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -26,6 +29,8 @@ import java.util.Date
 
 class FileDetailAdapter(private var fileList: List<FileDetail>): RecyclerView.Adapter<FileDetailAdapter.FileDetailViewHolder>() {
     // fileList is the parameter of the constructor
+
+
 
     class FileDetailViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
         val textViewFileName: TextView = itemView.findViewById(R.id.textViewFileName)
@@ -100,6 +105,9 @@ class FileDetailAdapter(private var fileList: List<FileDetail>): RecyclerView.Ad
                     when (fileAction[i]) {
                         "Open in Image View" -> {
 
+                            it.context.startActivity(Intent(it.context, ImageActivity::class.java))
+
+                            //HomeActivity().startActivity(myIntent)
                         }
 
                         "Open in Web View" -> {
@@ -136,7 +144,6 @@ class FileDetailAdapter(private var fileList: List<FileDetail>): RecyclerView.Ad
                                     }
                                 }
                                 .show()
-
                         }
 
                     }
