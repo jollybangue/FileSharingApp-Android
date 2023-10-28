@@ -9,7 +9,6 @@
 package com.rexmicrosystems.filesharingapp
 
 import android.annotation.SuppressLint
-import android.app.Application
 import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
@@ -30,7 +29,6 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import com.google.firebase.storage.ktx.component1
 import com.google.firebase.storage.ktx.component2
-import java.lang.ref.WeakReference
 import java.util.TreeMap
 
 
@@ -43,10 +41,6 @@ class HomeActivity : AppCompatActivity() {
         @SuppressLint("StaticFieldLeak")
         lateinit var myContext: Context
         // TODO: Solve the memory leak warning
-        //private lateinit var myIntance: WeakReference<HomeActivity>
-//        fun setContext (theContext: Context) {
-//            myContext = theContext
-//        }
 
         lateinit var appAuth: FirebaseAuth
         var isNewUser: Boolean = false // isNewUser is set to true when a new user account is successfully created in RegisterActivity.
@@ -59,7 +53,7 @@ class HomeActivity : AppCompatActivity() {
         private val realtimeDbRef = Firebase.database.reference // Pointing to the Firebase Realtime Database root node (It is the Realtime database reference). iOS Swift: private let realtimeDbRef = Database.database().reference()
         private const val realtimeDbRoot = "FileSharingApp" // Root folder of the app data in the Realtime database.
 
-        fun showAlertDialog (title: String, message: String) {
+        fun showAlertDialog(title: String, message: String) {
             val myAlertDialog = MaterialAlertDialogBuilder(myContext)
             myAlertDialog
                 .setTitle(title)
@@ -97,7 +91,7 @@ class HomeActivity : AppCompatActivity() {
                                 id += 1 // Incrementing the id.
                             }
                         } else {
-                            println("numberOfilesInCloudStorage is equal to numberOfFilesInRealtimeDB. No need to reinitialize and update the Realtime Database...")
+                            println("numberOfFilesInCloudStorage is equal to numberOfFilesInRealtimeDB. No need to reinitialize and update the Realtime Database...")
                         }
                     }
                 }
@@ -119,9 +113,6 @@ class HomeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
         myContext = this // Storing the application context in the static variable myContext. WARNING: Do not place Android context classes in static fields; this is a memory leak. We get the same warning using a set() function.
-        //saveCurrentApp(this.application) // getApplication() Catching the application that owns this activity and saving it into the static variable homeApp.
-        //setContext(this)
-        //myIntance = WeakReference(this)
 
         // Setting the title to be displayed in the ActionBar of the activity
         title = "Files in the Cloud" // Changed the default theme from Theme.Material3.DayNight.NoActionBar to "Theme.Material3.DayNight" To be able to see the Title. By default it is the name of the App (as defined in strings.xml) which is displayed in the ActionBar.
@@ -193,8 +184,6 @@ class HomeActivity : AppCompatActivity() {
                 .show() // Create and Show the Sign Out Dialog
         }
     }
-
-
 
     /**
      * This function allows the app to get and observe in realtime, the name of the files stored in

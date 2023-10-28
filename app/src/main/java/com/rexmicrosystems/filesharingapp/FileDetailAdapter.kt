@@ -96,11 +96,7 @@ class FileDetailAdapter(private var fileList: List<FileDetail>): RecyclerView.Ad
 
                 .setItems(fileAction) { _, i -> // (DialogInterface, Int)
                     Toast.makeText(it.context, "You selected \"${fileAction[i]}\" action", Toast.LENGTH_SHORT).show()
-                    // TODO: Insert a Switch...Case control flow here. Each case corresponds to one file action (see content of array fileAction above.)
-                    // Switch fileAction[i]
-                    // Case "Open in Image View"
-                    // Case "Open in Web View"...
-                    println("Content of i local variable: $i")
+
                     when (fileAction[i]) {
                         "Open in Image View" -> {
 
@@ -128,15 +124,12 @@ class FileDetailAdapter(private var fileList: List<FileDetail>): RecyclerView.Ad
                                 .setCancelable(false)
                                 .setTitle("Delete File")
                                 .setMessage("Do you want to permanently delete the file \"$fileSelectedName\" from the cloud?")
-                                .setNegativeButton("CANCEL") { jolly, bangue-> // DialogInterface!, Int
-                                    //Toast.makeText(it.context, "File deletion canceled", Toast.LENGTH_SHORT).show()
-                                    Toast.makeText(it.context, "jolly: $jolly, bangue: $bangue", Toast.LENGTH_SHORT).show()
+                                .setNegativeButton("CANCEL") { _, _ -> // DialogInterface!, Int
                                 }
                                 .setPositiveButton("DELETE") { _, _ ->
-                                    myStorageRef.child(fileStorageRoot).child(fileSelectedName).delete().addOnSuccessListener { result ->
+                                    myStorageRef.child(fileStorageRoot).child(fileSelectedName).delete().addOnSuccessListener {
                                         copyDataFromStorageToRealtimeDB()
                                         showAlertDialog("File Deleted", "The file \"$fileSelectedName\" has been succesfully deleted from the cloud.")
-                                        println("Content of variable \"result\": $result")
                                     }
                                     .addOnFailureListener { error ->
                                         showAlertDialog("File Deletion Error", error.localizedMessage!!)
