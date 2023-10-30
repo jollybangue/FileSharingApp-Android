@@ -6,6 +6,8 @@
 //
 // Description: A file management Android app that allows users to upload, download, open, delete, and share files stored in cloud using Firebase features (Firebase Authentication, Firebase Cloud Storage and Firebase Realtime Database).
 
+// TODO: Reload Recycler view when the activity is paused then resumed (after the screen has turned off and then on)
+
 package com.rexmicrosystems.filesharingapp
 
 import android.annotation.SuppressLint

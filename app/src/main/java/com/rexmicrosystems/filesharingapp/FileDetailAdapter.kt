@@ -11,6 +11,7 @@ package com.rexmicrosystems.filesharingapp
 
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
@@ -18,6 +19,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat.getSystemService
+import androidx.core.content.ContextCompat.startActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rexmicrosystems.filesharingapp.HomeActivity.Companion.copyDataFromStorageToRealtimeDB
@@ -74,6 +76,7 @@ class FileDetailAdapter(private var fileList: List<FileDetail>): RecyclerView.Ad
                         myClipboard?.setPrimaryClip(myClipData) // Putting the clip data into the clipboard.
                         showAlertDialog(fileSelectedName, "File link copied to clipboard")
                         println("File link to share: $myUri")
+
                     }
                         .addOnFailureListener { error ->
                             showAlertDialog("Share Error", error.localizedMessage!!)
@@ -100,12 +103,15 @@ class FileDetailAdapter(private var fileList: List<FileDetail>): RecyclerView.Ad
                 }
 
                 .setItems(fileAction) { _, i -> // (DialogInterface, Int)
-                    Toast.makeText(it.context, "You selected \"${fileAction[i]}\" action", Toast.LENGTH_SHORT).show()
+                    //Toast.makeText(it.context, "You selected \"${fileAction[i]}\" action", Toast.LENGTH_SHORT).show()
 
                     when (fileAction[i]) {
                         "Open in Image View" -> {
+                            val imageViewIntent = Intent(it.context, ImageActivity::class.java)
+                            imageViewIntent.putExtra("EXTRA_FILENAME", fileSelectedName)
+                            it.context.startActivity(imageViewIntent)
 
-                            it.context.startActivity(Intent(it.context, ImageActivity::class.java))
+                            //it.context.startActivity(Intent(it.context, ImageActivity::class.java))
 
                             //HomeActivity().startActivity(myIntent)
                         }
