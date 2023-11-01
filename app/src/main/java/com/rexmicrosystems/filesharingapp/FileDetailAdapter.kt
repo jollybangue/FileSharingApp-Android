@@ -147,7 +147,6 @@ class FileDetailAdapter(private var fileList: List<FileDetail>): RecyclerView.Ad
                                 }
                                 .show()
                         }
-
                     }
                 }
                 .show()
