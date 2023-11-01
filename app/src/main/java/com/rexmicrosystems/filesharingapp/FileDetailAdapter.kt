@@ -11,15 +11,12 @@ package com.rexmicrosystems.filesharingapp
 
 import android.content.ClipData
 import android.content.ClipboardManager
-import android.content.Context
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import android.widget.Toast
 import androidx.core.content.ContextCompat.getSystemService
-import androidx.core.content.ContextCompat.startActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rexmicrosystems.filesharingapp.HomeActivity.Companion.copyDataFromStorageToRealtimeDB
@@ -57,29 +54,28 @@ class FileDetailAdapter(private var fileList: List<FileDetail>): RecyclerView.Ad
         // List of actions shown when the user click on a file. Will be used to set items in the fileActionsDialog...
         val fileAction = arrayOf("Open in Image View", "Open in Web View", "Open with System", "Download in the Default App Folder", "Download in Specified Location", "Delete File")
 
-        holder.itemView.setOnClickListener {
+        holder.itemView.setOnClickListener { myItemView ->
             // VERY IMPORTANT NOTE: In "file_item.xml", android:foreground="?selectableItemBackground" allows to highlight the selected item.
             // Do I need  android:clickable="true" and android:focusable="true" ??? It seems NO!!!.
 
             //notifyItemChanged(position) // TODO: Check if this expression is necessary...
 
             // Creating fileActionsDialog which will be shown when the user clicks on a file. NOTE: Unable to define fileActionsDialog outside .setOnClickListener{}...
-            val fileActionsDialog = MaterialAlertDialogBuilder(it.context)
+            val fileActionsDialog = MaterialAlertDialogBuilder(myItemView.context)
             fileActionsDialog
                 .setTitle(fileSelectedName)
                 .setCancelable(false) // The user should select an item or a button to dismiss the alert dialog.
 
                 .setPositiveButton("SHARE") {_, _ ->
                     myStorageRef.child(fileStorageRoot).child(fileSelectedName).downloadUrl.addOnSuccessListener { myUri ->
-                        val myClipboard = getSystemService(it.context, ClipboardManager::class.java) // Getting the system clipboard
-                        val myClipData = ClipData.newUri(it.context.contentResolver, "URI", myUri) // Converting the URL contained in myUri as a ClipData
+                        val myClipboard = getSystemService(myItemView.context, ClipboardManager::class.java) // Getting the system clipboard
+                        val myClipData = ClipData.newUri(myItemView.context.contentResolver, "URI", myUri) // Converting the URL contained in myUri as a ClipData
                         myClipboard?.setPrimaryClip(myClipData) // Putting the clip data into the clipboard.
-                        showAlertDialog(fileSelectedName, "File link copied to clipboard")
+                        showAlertDialog(fileSelectedName, "File link copied to clipboard", myItemView.context)
                         println("File link to share: $myUri")
-
                     }
                         .addOnFailureListener { error ->
-                            showAlertDialog("Share Error", error.localizedMessage!!)
+                            showAlertDialog("Share Error", error.localizedMessage!!, myItemView.context)
                         }
                 }
 
@@ -95,10 +91,10 @@ class FileDetailAdapter(private var fileList: List<FileDetail>): RecyclerView.Ad
                         val fileSize = DecimalFormat("#,###").format(metadata.sizeBytes) // metadata.sizeBytes is the size (in bytes) of the selected file. DecimalFormat with pattern "#,###" adds comma separators in the value of the file size.
                         val fileDateCreated = Date(metadata.creationTimeMillis) // Converting the Timestamp metadata.creationTimeMillis to Date format
                         val fileDateModified = Date(metadata.updatedTimeMillis)
-                        showAlertDialog("File Details", "Name: $name\n\nKind: $fileKind file\n\nSize: $fileSize bytes\n\nCreated: $fileDateCreated\n\nModified: $fileDateModified")
+                        showAlertDialog("File Details", "Name: $name\n\nKind: $fileKind file\n\nSize: $fileSize bytes\n\nCreated: $fileDateCreated\n\nModified: $fileDateModified", myItemView.context)
                     }
                     .addOnFailureListener { error ->
-                        showAlertDialog("Metadata Error", error.localizedMessage!!)
+                        showAlertDialog("Metadata Error", error.localizedMessage!!, myItemView.context)
                     }
                 }
 
@@ -107,9 +103,9 @@ class FileDetailAdapter(private var fileList: List<FileDetail>): RecyclerView.Ad
 
                     when (fileAction[i]) {
                         "Open in Image View" -> {
-                            val imageViewIntent = Intent(it.context, ImageActivity::class.java)
+                            val imageViewIntent = Intent(myItemView.context, ImageActivity::class.java)
                             imageViewIntent.putExtra("EXTRA_FILENAME", fileSelectedName)
-                            it.context.startActivity(imageViewIntent)
+                            myItemView.context.startActivity(imageViewIntent)
 
                             //it.context.startActivity(Intent(it.context, ImageActivity::class.java))
 
@@ -133,7 +129,7 @@ class FileDetailAdapter(private var fileList: List<FileDetail>): RecyclerView.Ad
                         }
 
                         "Delete File" -> {
-                            val deleteFileConfirmationDialog = MaterialAlertDialogBuilder(it.context)
+                            val deleteFileConfirmationDialog = MaterialAlertDialogBuilder(myItemView.context)
                             deleteFileConfirmationDialog
                                 .setCancelable(false)
                                 .setTitle("Delete File")
@@ -142,11 +138,11 @@ class FileDetailAdapter(private var fileList: List<FileDetail>): RecyclerView.Ad
                                 }
                                 .setPositiveButton("DELETE") { _, _ ->
                                     myStorageRef.child(fileStorageRoot).child(fileSelectedName).delete().addOnSuccessListener {
-                                        copyDataFromStorageToRealtimeDB()
-                                        showAlertDialog("File Deleted", "The file \"$fileSelectedName\" has been succesfully deleted from the cloud.")
+                                        copyDataFromStorageToRealtimeDB(myItemView.context)
+                                        showAlertDialog("File Deleted", "The file \"$fileSelectedName\" has been succesfully deleted from the cloud.", myItemView.context)
                                     }
                                     .addOnFailureListener { error ->
-                                        showAlertDialog("File Deletion Error", error.localizedMessage!!)
+                                        showAlertDialog("File Deletion Error", error.localizedMessage!!, myItemView.context)
                                     }
                                 }
                                 .show()

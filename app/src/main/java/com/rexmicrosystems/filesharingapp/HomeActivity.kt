@@ -10,7 +10,6 @@
 
 package com.rexmicrosystems.filesharingapp
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
@@ -40,8 +39,8 @@ class HomeActivity : AppCompatActivity() {
         // We cannot create static variables in Kotlin. Instead, we should use a companion object.
         // All the fields of a companion object are static and therefore accessible from everywhere in the app.
 
-        @SuppressLint("StaticFieldLeak")
-        lateinit var myContext: Context
+        //@SuppressLint("StaticFieldLeak")
+        //lateinit var myContext: Context
         // TODO: Solve the memory leak warning
 
         lateinit var appAuth: FirebaseAuth
@@ -58,7 +57,7 @@ class HomeActivity : AppCompatActivity() {
         //val myIntent = Intent(myContext, ImageActivity::class.java)
 
 
-        fun showAlertDialog(title: String, message: String) {
+        fun showAlertDialog(title: String, message: String, myContext: Context) {
             val myAlertDialog = MaterialAlertDialogBuilder(myContext)
             myAlertDialog
                 .setTitle(title)
@@ -72,7 +71,7 @@ class HomeActivity : AppCompatActivity() {
          * This function gets the list of files stored in the Firebase cloud storage and save it into
          * the Realtime database.
          */
-        fun copyDataFromStorageToRealtimeDB() {
+        fun copyDataFromStorageToRealtimeDB(myContext: Context) {
             myStorageRef.child(fileStorageRoot).listAll()
                 .addOnSuccessListener { (items, prefixes) ->
 
@@ -101,7 +100,7 @@ class HomeActivity : AppCompatActivity() {
                     }
                 }
                 .addOnFailureListener {
-                    showAlertDialog("Cloud Storage Error", "${it.message}")
+                    showAlertDialog("Cloud Storage Error", "${it.message}", myContext)
                 }
         }
 
@@ -117,12 +116,11 @@ class HomeActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
-        myContext = this // Storing the application context in the static variable myContext. WARNING: Do not place Android context classes in static fields; this is a memory leak. We get the same warning using a set() function.
+        //myContext = this // Storing the application context in the static variable myContext. WARNING: Do not place Android context classes in static fields; this is a memory leak. We get the same warning using a set() function.
 
         // Setting the title to be displayed in the ActionBar of the activity
         //title = "Files in the Cloud" // Changed the default theme from Theme.Material3.DayNight.NoActionBar to "Theme.Material3.DayNight" To be able to see the Title. By default it is the name of the App (as defined in strings.xml) which is displayed in the ActionBar.
         supportActionBar?.title = "Files in the Cloud"
-
 
         // Checking if the app should show a welcome AlertDialog to the newly created user.
         if (isNewUser) {
@@ -145,7 +143,7 @@ class HomeActivity : AppCompatActivity() {
         recyclerViewFileList.layoutManager = LinearLayoutManager(this)
         recyclerViewFileList.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL)) // Adding a divider to separate the items shown in the Recycler view.
 
-        copyDataFromStorageToRealtimeDB() // Getting the list of files available in the Firebase Cloud Storage and storing them in the Realtime Database.
+        copyDataFromStorageToRealtimeDB(this) // Getting the list of files available in the Firebase Cloud Storage and storing them in the Realtime Database.
         getFileNamesFromRealtimeDB() // Get and observe the file list stored in the Realtime Database.
 
         buttonUpload.setOnClickListener {
@@ -237,7 +235,7 @@ class HomeActivity : AppCompatActivity() {
              * @param error A description of the error that occurred
              */
             override fun onCancelled(error: DatabaseError) {
-                showAlertDialog("Realtime Database Error", error.message)
+                showAlertDialog("Realtime Database Error", error.message, this@HomeActivity)
             }
 
         }
