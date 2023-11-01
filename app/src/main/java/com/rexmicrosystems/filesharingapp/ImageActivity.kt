@@ -37,6 +37,8 @@ class ImageActivity : AppCompatActivity() {
                         var fileBitmap: Bitmap
                         withContext(Dispatchers.IO) {// Launching a background job.
                             fileBitmap = BitmapFactory.decodeStream(fileURL.openStream()) // Downloading the image in a background task (coroutine) and save it in fileBitmap
+                            // Note: We can use either .openStream() or .openConnection().getInputStream() to read from a URL. However, reading from a URLConnection instead of reading directly from a URL might be more useful. This is because you can use the URLConnection object for other tasks (like writing to the URL) at the same time.
+                            // Reference: https://docs.oracle.com/javase/tutorial/networking/urls/readingWriting.html
                         }
                         imageView.setImageBitmap(fileBitmap)
 
@@ -54,7 +56,7 @@ class ImageActivity : AppCompatActivity() {
          //Method 2: Using Firebase library, with getBytes. NOTE: With this method, no exception is thrown when a NON-IMAGE file is selected for opening in Image View.
 //        myStorageRef.child(fileStorageRoot).child(fileName!!).getBytes(20 * 1024 * 1024)
 //            .addOnSuccessListener { dataByteArray ->
-//                val fileData = BitmapFactory.decodeByteArray(dataByteArray, 0, dataByteArray.size)
+//                val fileData = BitmapFactory.decodeByteArray(dataByteArray, 0, dataByteArray.size) // Offset = 0. The offset is the starting address, of the byte where the bitmap image data (pixel array) can be found.
 //                imageView.setImageBitmap(fileData)
 //            }
 //            .addOnFailureListener {
