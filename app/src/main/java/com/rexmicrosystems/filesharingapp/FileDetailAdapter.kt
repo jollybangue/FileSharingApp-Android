@@ -100,20 +100,17 @@ class FileDetailAdapter(private var fileList: List<FileDetail>): RecyclerView.Ad
 
                 .setItems(fileAction) { _, i -> // (DialogInterface, Int)
                     //Toast.makeText(it.context, "You selected \"${fileAction[i]}\" action", Toast.LENGTH_SHORT).show()
-
                     when (fileAction[i]) {
                         "Open in Image View" -> {
-                            val imageViewIntent = Intent(myItemView.context, ImageActivity::class.java)
-                            imageViewIntent.putExtra("EXTRA_FILENAME", fileSelectedName)
-                            myItemView.context.startActivity(imageViewIntent)
-
-                            //it.context.startActivity(Intent(it.context, ImageActivity::class.java))
-
-                            //HomeActivity().startActivity(myIntent)
+                            val imageViewIntent = Intent(myItemView.context, ImageActivity::class.java) // Creating intent for launching the ImageActivity.
+                            imageViewIntent.putExtra("EXTRA_FILENAME", fileSelectedName) // Passing the name of the selected file to the new activity (ImageActivity)
+                            myItemView.context.startActivity(imageViewIntent) // Starting ImageActivity
                         }
 
                         "Open in Web View" -> {
-
+                            val webViewIntent = Intent(myItemView.context, WebViewActivity::class.java)
+                            webViewIntent.putExtra("EXTRA_FILENAME", fileSelectedName)
+                            myItemView.context.startActivity(webViewIntent)
                         }
 
                         "Open with System" -> {

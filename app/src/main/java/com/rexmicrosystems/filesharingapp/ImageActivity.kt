@@ -20,8 +20,8 @@ class ImageActivity : AppCompatActivity() {
         setContentView(R.layout.activity_image)
 
         val imageView = findViewById<ImageView>(R.id.imageView)
-
         val fileName = intent.getStringExtra("EXTRA_FILENAME")
+
         supportActionBar?.title = fileName
         supportActionBar?.setDisplayHomeAsUpEnabled(true) // Adding a back to Home button in the left side of the AppBar. To make the back button functional, I added "android:parentActivityName=".HomeActivity"" in the AndroidManifest.xml file, at the section of ImageActivity.
 
