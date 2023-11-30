@@ -8,6 +8,8 @@
 
 // TODO: Reload Recycler view when the activity is paused then resumed (after the screen has turned off and then on)
 
+// TODO: Fix all the remaining TODO tasks as soon as possible...
+
 package com.rexmicrosystems.filesharingapp
 
 import android.content.Context
