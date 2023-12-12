@@ -41,10 +41,6 @@ class HomeActivity : AppCompatActivity() {
         // We cannot create static variables in Kotlin. Instead, we should use a companion object.
         // All the fields of a companion object are static and therefore accessible from everywhere in the app.
 
-        //@SuppressLint("StaticFieldLeak")
-        //lateinit var myContext: Context
-        // TODO: Solve the memory leak warning
-
         lateinit var appAuth: FirebaseAuth
         var isNewUser: Boolean = false // isNewUser is set to true when a new user account is successfully created in RegisterActivity.
         var userEmail: String? = null // userEmail = appAuth.currentUser?.email when the user account is successfully created (see RegisterActivity).
@@ -80,6 +76,8 @@ class HomeActivity : AppCompatActivity() {
                     realtimeDbRef.child(realtimeDbRoot).get().addOnSuccessListener {
                         println("INITIALIZATION: Number of files in Firebase Cloud Storage: ${items.count()}")
                         println("INITIALIZATION: Number of files in Realtime Database: ${it.childrenCount}")
+
+                        // Checking the integrity of the realtime database. We update the realtime database ONLY if the numberOfFilesInRealtimeDB is different from the numberOfFilesInCloudStorage.
                         if (it.childrenCount.toInt() != items.count()) {
                             // Reinitialization and update of the Realtime Database.
                             realtimeDbRef.child(realtimeDbRoot).removeValue() // Deletes all the current values in realtime database app folder to avoid duplication issues.
@@ -224,7 +222,6 @@ class HomeActivity : AppCompatActivity() {
                     }
 
                 }
-                // TODO: Realtime database management optimization...
 
                 recyclerViewFileList.adapter = FileDetailAdapter(fileDetailList) // Passing fileDetailList to the recycler view via the adapter. NOTE: fileDetailList is NOT accessible outside onDataChange() function.
             }
