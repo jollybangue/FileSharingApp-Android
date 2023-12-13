@@ -54,7 +54,7 @@ class ImageActivity : AppCompatActivity() {
         // TODO: Implement a progression bar.
 
          //Method 2: Using Firebase library, with getBytes. NOTE: With this method, no exception is thrown when a NON-IMAGE file is selected for opening in Image View.
-//        myStorageRef.child(fileStorageRoot).child(fileName!!).getBytes(20 * 1024 * 1024)
+//        myStorageRef.child(fileStorageRoot).child(fileName!!).getBytes(20 * 1024 * 1024) // The max size of the downloadable file is set to 20 MB.
 //            .addOnSuccessListener { dataByteArray ->
 //                val fileData = BitmapFactory.decodeByteArray(dataByteArray, 0, dataByteArray.size) // Offset = 0. The offset is the starting address, of the byte where the bitmap image data (pixel array) can be found.
 //                imageView.setImageBitmap(fileData)
